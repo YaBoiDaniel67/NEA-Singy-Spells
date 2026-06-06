@@ -29,6 +29,6 @@ def RayCast(display, xPos, yPos, frame, hres, halfvres, scale_factor, player_rot
             distance = (halfvres/(halfvres - j)) / correctional_cos #calculates the distance of the point from the player - division by correctional_cosine fixes distortion
             x, y = xPos + cos * distance, yPos + sin * distance #calculates the x and y postion of the given pixel
             pix_x, pix_y = int(x * 2 % 1 * 100), int(y * 2 % 1 * 100) #calculates pixel from the texture that is mapped to the specific point, using the non-integer part of the x and y coords. timsed by 2 so that player appears larger (for texture size 100 x 100 pixels)
-            shade = 0.2 + (1 - j / halfvres) #calculates the amount of shade applied, so further away pixels appear darker, adding to sense of depth
+            shade = 0.2 + 0.8 * (1 - j / halfvres) #calculates the amount of shade applied, so further away pixels appear darker, adding to sense of depth
             frame[i][halfvres * 2 - j - 1] = shade*textures.floor[pix_x][pix_y] #sets colour of the pixel using the RGB values of the pixel location on the floor bitmap
     display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (var.screenX, var.screenY)), (0, 0)) #draws the values stored in frame to the screen

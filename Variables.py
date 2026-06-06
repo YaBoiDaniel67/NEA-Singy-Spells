@@ -3,7 +3,7 @@ import numpy as np
 
 screenX, screenY = 320, 180
 display = pygame.display.set_mode((screenX, screenY), pygame.RESIZABLE)
-player_roatation = 0 #players rotation
+player_rotation = 0 #players rotation
 xPos, yPos = (3, 3) #players coords
 horizontal_res = 120 #horizontal resolution
 vertical_res = 200 #vertical resolution

@@ -4,10 +4,10 @@ import Variables as var
 display = var.display
 
 sky = pygame.image.load("Graphics/Textures/sky.png").convert()
-sky = pygame.surfarray.array3d(pygame.transform.scale(sky, (360, var.halfvertical_res * 2)))
+sky = pygame.surfarray.array3d(pygame.transform.scale(sky, (360, var.vertical_res)))
 
 floor = pygame.image.load("Graphics/Textures/Floor.png").convert()
-floor = pygame.surfarray.array3d(pygame.transform.scale(floor, (100, var.halfvertical_res * 2)))
+floor = pygame.surfarray.array3d(pygame.transform.scale(floor, (100, var.vertical_res)))
 
 wall = pygame.image.load("Graphics/Textures/Wall.png").convert()
 wall = pygame.surfarray.array3d(pygame.transform.scale(wall, (100, var.halfvertical_res)))

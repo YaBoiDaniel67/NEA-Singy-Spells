@@ -7,10 +7,8 @@ import Variables as var
 #imports all librarys needed for this project
 
 display = var.display
-scale_factor = var.scale_factor
 clock = pygame.time.Clock()
-frame = np.random.uniform(0, 1, (var.horizontal_res, var.halfvertical_res * 2, 3))
-#sets up initial variables, many pulling form my varaibles file, which is where variables accsssed by many files are initialised
+frame = np.random.uniform(0, 1, (var.horizontal_res, var.vertical_res, 3))
 
 run = True
 while run: #creates an indefinite loop to keep the game running

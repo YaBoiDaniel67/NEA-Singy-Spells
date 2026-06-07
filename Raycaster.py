@@ -6,10 +6,10 @@ import Variables as var
 def RayCast(display, xPos, yPos, frame, player_rotation):
     for i in range(var.horizontal_res): #loops through the amount of pixels horizontally across the screen
         x, y = xPos, yPos #creates a local copy of the player x and y coords
-        player_redundant_ray_angle = np.deg2rad((i / var.scale_factor) - 30) #calculates the angle for the current ray
+        player_redundant_ray_angle = np.deg2rad((i / var.pixels_per_degree) - 30) #calculates the angle for the current ray
         ray_angle = player_rotation + player_redundant_ray_angle #calculates the angle of each ray + the players current rotation to get a resultant angle of rotation for the ray
         sin, cos, correctional_cos = np.sin(ray_angle), np.cos(ray_angle), np.cos(player_redundant_ray_angle) #saves the sin and cosine values of ray_angle so they dont have be constatnly recalculated, correctional_cos is used to correct the fish-eye distortion caused by raycasting
-        frame[i][:] = textures.sky[int(np.rad2deg(ray_angle) % 360)][:] #calculates how far round in deg (0 - 359) this sky column is, maps this frame index to a given pixel column in the sky bitmap
+        frame[i][:] = textures.sky[int(np.rad2deg(ray_angle) % 359)][:] #calculates how far round in deg (0 - 359) this sky column is, maps this frame index to a given pixel column in the sky bitmap
         while var.world_map[int(x)][int(y)] == 0: #repeats until a wall is found
             x, y = x + 0.01 * cos, y + 0.01 * sin #adds scaled direction vector values to x and y so it moves along the same line (the given ray)
         distance = abs((x - xPos) / cos) #calculates the distance of said wall from the player - distance is always positive

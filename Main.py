@@ -8,7 +8,7 @@ import Variables as var
 
 display = var.display
 clock = pygame.time.Clock()
-frame = np.random.uniform(0, 1, (var.horizontal_res, var.vertical_res, 3))
+frame = np.random.uniform(0, 1, (var.horizontal_res, var.vertical_res, 3)) #frame is numpy array as it is fasteer to edit and write data to
 
 run = True
 while run: #creates an indefinite loop to keep the game running

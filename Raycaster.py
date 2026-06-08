@@ -11,7 +11,7 @@ def RayCast(display, xPos, yPos, frame, player_rotation):
         sin, cos, correctional_cos = np.sin(ray_angle), np.cos(ray_angle), np.cos(player_redundant_ray_angle) #saves the sin and cosine values of ray_angle so they dont have be constatnly recalculated, correctional_cos is used to correct the fish-eye distortion caused by raycasting
         frame[i][:] = textures.sky[int(np.rad2deg(ray_angle) % 359)][:] #calculates how far round in deg (0 - 359) this sky column is, maps this frame index to a given pixel column in the sky bitmap
         while var.world_map[int(x)][int(y)] == 0: #repeats until a wall is found
-            x, y = x + 0.01 * cos, y + 0.01 * sin #adds scaled direction vector values to x and y so it moves along the same line (the given ray)
+            x, y = x + 0.01 * cos, y + 0.01 * sin #adds scaled direction vector values to x and y so it moves along the same line (the current ray)
         distance = abs((x - xPos) / cos) #calculates the distance of said wall from the player - distance is always positive
         height = int(var.vertical_res / (distance * correctional_cos + 0.0001)) #calculates the height of the wall (how many available wall pixels / how far away the wall is * correctional_cos to correct fish eye distortion, add small value to prevent division by 0)
         half_height = int(height / 2) #saved to variable to prevent unnecessary, repetative calculations
@@ -22,10 +22,10 @@ def RayCast(display, xPos, yPos, frame, player_rotation):
         shading = 0.2 + (height/var.halfvertical_res) #calculates the darkening of the wall, proportional to distance
         if shading > 1:
             shading = 1 #corrects shading for very close up walls
-        for current_y_pixel in range(height - 1): #for all pixles that are within the wall
-            if half_height - var.halfvertical_res < current_y_pixel < half_height + var.halfvertical_res: #if the pixel is visible on-screen
+        for current_y_pixel in range(height - 1): #for all pixels that are within the wall
+            if half_height - var.halfvertical_res < current_y_pixel < half_height + var.halfvertical_res: #if the pixel is in the wall
               frame[i][var.halfvertical_res - half_height + current_y_pixel] = shading * textures.wall[pix_x][int(pix_y[current_y_pixel])] #sets the RGB colour values of the specific pixel, using the wall bitmap
-        for j in range(var.halfvertical_res - half_height + 1): #loops through amount of pixels vertically across the screen, until it meets either the bottom of a wall or half way up the screen
+        for j in range(var.halfvertical_res - half_height + 1): #loops through amount of pixels vertically across the screen, until it meets either the bottom of a wall or half way up the screen -used for the floorcasting
             distance = (var.halfvertical_res / (var.halfvertical_res - j)) / correctional_cos #calculates the distance of the point from the player - division by correctional_cosine fixes distortion
             x, y = xPos + cos * distance, yPos + sin * distance #calculates the x and y postion of the given pixel
             pix_x, pix_y = int((x % 1) * 100), int((y % 1) * 100) #calculates pixel from the texture that is mapped to the specific point, using the non-integer part of the x and y coords (for texture size 100 x 100 pixels)

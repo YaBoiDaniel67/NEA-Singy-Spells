@@ -1,10 +1,11 @@
 import pygame
 from pygame.locals import *
 import numpy as np
+#imports all librarys needed for this file
 import Raycaster as Raycast
 import Player as player
 import Variables as var
-#imports all librarys needed for this project
+#import the other files
 
 display = var.display
 clock = pygame.time.Clock()
@@ -19,4 +20,4 @@ while run: #creates an indefinite loop to keep the game running
     Raycast.RayCast(display, var.xPos, var.yPos, frame, var.player_rotation) #calls the raycast subroutine
     var.xPos, var.yPos, var.player_rotation = player.Movement(var.xPos, var.yPos, var.player_rotation, pygame.key.get_pressed()) #calls the movement subroutine
     pygame.display.update() #updates the display
-    var.screenX, var.screenY = display.get_size() #updates screen size, so that game scales to size of screen
+    var.screenX, var.screenY = display.get_size() #updates screen size, so that game scales to size of screens

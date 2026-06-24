@@ -3,7 +3,7 @@ from pygame.locals import *
 import numpy as np
 #imports all librarys needed for this file
 import Raycaster as Raycast
-import Player as player
+import Player as playerh
 import Variables as var
 #import the other files
 

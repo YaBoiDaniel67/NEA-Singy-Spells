@@ -6,13 +6,13 @@ import Variables as var
 def Movement(xPos, yPos, player_rotation, keys):
     x, y = xPos, yPos
     if keys[ord('a')]: #is key at index ord('a') currently being held down
-        player_rotation -= 0.1
+        player_rotation -= 0.05
     if keys[ord('d')]: #is key at index ord('d') currently being held down 
-        player_rotation += 0.1
-    if keys[ord('w')]: #is key at index ord('w') currently being held down
-        x, y = x + np.cos(player_rotation) * 0.1, y + np.sin(player_rotation) * 0.1
+        player_rotation += 0.05
+    if keys[ord('w')] or var.humming == True: #is key at index ord('w') currently being held down
+        x, y = x + np.cos(player_rotation) * 0.05, y + np.sin(player_rotation) * 0.05
     if keys[ord('s')]: #is key at index ord('s') currently being held down
-        x, y = x - np.cos(player_rotation) * 0.1, y - np.sin(player_rotation) * 0.1
+        x, y = x - np.cos(player_rotation) * 0.05, y - np.sin(player_rotation) * 0.05
     if not (var.world_map[int(x - 0.1)][int(y)] or var.world_map[int(x + 0.1)][int(y)] or var.world_map[int(x)][int(y - 0.1)] or var.world_map[int(x)][int(y + 0.1)]): #if the player is not about to move into a wall, their position updates
         xPos, yPos = x, y
     elif not (var.world_map[int(xPos - 0.1)][int(y)] or var.world_map[int(xPos + 0.1)][int(y)] or var.world_map[int(xPos)][int(y - 0.1)] or var.world_map[int(xPos)][int(y + 0.1)]): #if the x is about to move into a wall but the y is not, the y updates

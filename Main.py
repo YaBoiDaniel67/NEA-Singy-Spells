@@ -5,6 +5,7 @@ import numpy as np
 import Raycaster as Raycast
 import Player as player
 import Variables as var
+import Audio_Input as audio
 #import the other files
 
 display = var.display
@@ -19,5 +20,6 @@ while run: #creates an indefinite loop to keep the game running
             run = False #if the cross button is pressed, the window closes - allows exit of the program
     Raycast.RayCast(display, var.xPos, var.yPos, frame, var.player_rotation) #calls the raycast subroutine
     var.xPos, var.yPos, var.player_rotation = player.Movement(var.xPos, var.yPos, var.player_rotation, pygame.key.get_pressed()) #calls the movement subroutine
+    audio.transform_sample(audio.audio_queue)
     pygame.display.update() #updates the display
     var.screenX, var.screenY = display.get_size() #updates screen size, so that game scales to size of screens

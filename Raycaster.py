@@ -18,17 +18,20 @@ def RayCast(display, xPos, yPos, frame, player_rotation):
         pix_x = int((x % 1) * 100) #calculates the x coord of the pixel on the bitmap (size 100 x 100)
         if x % 1 > 0.99 or x % 1 < 0.01: #checks if non-int parts of x are near a whole number
             pix_x =  int((y % 1) * 100) #if x is near a whole number, the horizontal coord needs to be the y coord
-        pix_y = np.linspace(0, 100, height) #gives all the y coords of the pixels in an ordered sequence (size 100 x 100)
-        shading = 0.2 + (height/var.halfvertical_res) #calculates the darkening of the wall, proportional to distance
+        wall_top = max(0, var.halfvertical_res - half_height) #calculates the top of the wall
+        wall_bottom = min(var.vertical_res, var.halfvertical_res + half_height) #calculate the bottom of the wall
+        visible_height = wall_bottom - wall_top #calculates the height of a given wall that is on screen
+        pix_column = np.arange(height) #creates an array of vertical points within wall
+        shading = 0.2 + (height / var.halfvertical_res) #calculates the darkening of the wall, proportional to distance
         if shading > 1:
             shading = 1 #corrects shading for very close up walls
-        for current_y_pixel in range(height - 1): #for all pixels that are within the wall
-            if half_height - var.halfvertical_res < current_y_pixel < half_height + var.halfvertical_res: #if the pixel is in the wall
-              frame[i][var.halfvertical_res - half_height + current_y_pixel] = shading * textures.wall[pix_x][int(pix_y[current_y_pixel])] #sets the RGB colour values of the specific pixel, using the wall bitmap
-        for j in range(var.halfvertical_res - half_height + 1): #loops through amount of pixels vertically across the screen, until it meets either the bottom of a wall or half way up the screen -used for the floorcasting
-            distance = (var.halfvertical_res / (var.halfvertical_res - j)) / correctional_cos #calculates the distance of the point from the player - division by correctional_cosine fixes distortion
-            x, y = xPos + cos * distance, yPos + sin * distance #calculates the x and y postion of the given pixel
-            pix_x, pix_y = int((x % 1) * 100), int((y % 1) * 100) #calculates pixel from the texture that is mapped to the specific point, using the non-integer part of the x and y coords (for texture size 100 x 100 pixels)
-            shading = 0.2 + 0.8 * (1 - (j / var.halfvertical_res)) #calculates the amount of shade applied, so further away pixels appear darker, adding to sense of depth
-            frame[i][var.vertical_res - j - 1] = shading * textures.floor[pix_x][pix_y] #sets colour of the pixel using the RGB values of the pixel location on the floor bitmap
+        pix_y = ((pix_column / height) * (textures.wall.shape[1])).astype(int) #creates a decimal between 0 and 1, scales that to fit the wall texture, and saves the int of that. Creates a list of the specific texture points for this slice
+        cut_wall_texture = max(0, half_height - var.halfvertical_res) #calculates how much of the texture is cut off the top of the screen
+        frame[i][wall_top : wall_bottom] = shading * textures.wall[pix_x][pix_y[cut_wall_texture : cut_wall_texture + visible_height]] #sets the RGB colour values of the specific column, using the wall bitmap
+        pix_column = np.arange(var.halfvertical_res - half_height + 1)  #creates an array of all pixels vertically across screen where floor needs to be filled
+        distance = (var.halfvertical_res / (var.halfvertical_res - pix_column)) / correctional_cos #creates an array of eahc pixels distance from the player
+        x, y = xPos + cos * distance, yPos + sin * distance #creates arrays of the x and y position of each pixel
+        pix_x, pix_y = ((x % 1) * 100).astype(int), ((y % 1) * 100).astype(int) #calculates eahc pixel from the texture that is mapped to each specific point in the array, using the non-integer part of the x and y coords (for texture size 100 x 100 pixels)
+        shading = 0.2 + 0.8 * (1 - (pix_column / var.halfvertical_res)) #calculates the amount of shade applied, so further away pixels appear darker, adding to sense of depth
+        frame[i][var.vertical_res - pix_column - 1] = shading[:, None] * textures.floor[pix_x, pix_y] #sets colour of the pixels using the RGB values of the pixel location on the floor bitmap
     display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (var.screenX, var.screenY)), (0, 0)) #draws the values stored in frame to the screen

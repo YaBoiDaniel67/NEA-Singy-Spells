@@ -9,7 +9,7 @@ def Movement(xPos, yPos, player_rotation, keys):
         player_rotation -= 0.05
     if keys[ord('d')]: #is key at index ord('d') currently being held down 
         player_rotation += 0.05
-    if keys[ord('w')]: #is key at index ord('w') currently being held down
+    if keys[ord('w')] or var.humming == True: #is key at index ord('w') currently being held down
         x, y = x + np.cos(player_rotation) * 0.05, y + np.sin(player_rotation) * 0.05
     if keys[ord('s')]: #is key at index ord('s') currently being held down
         x, y = x - np.cos(player_rotation) * 0.05, y - np.sin(player_rotation) * 0.05

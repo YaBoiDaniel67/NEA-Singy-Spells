@@ -28,4 +28,5 @@ while run: #creates an indefinite loop to keep the game running
     audio.transform_sample(audio.audio_queue)
     text = font.render(f"current note: {var.note}", True, (255, 255, 255))
     display.blit(text, (var.screenX * 0.05, var.screenY * 0.05))
+    print(list(var.recent_notes.queue))
     pygame.display.update() #updates the display

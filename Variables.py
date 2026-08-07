@@ -1,4 +1,5 @@
 import pygame
+from queue import Queue
 
 screenX, screenY = 320, 180 #initial window size
 display = pygame.display.set_mode((screenX, screenY), pygame.RESIZABLE)
@@ -16,3 +17,5 @@ world_map = [[1, 1, 1, 1, 1],
 
 note = ""
 humming = False
+recent_notes = Queue()
+start_time = 0

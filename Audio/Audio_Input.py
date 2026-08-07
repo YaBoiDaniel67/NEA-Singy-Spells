@@ -4,12 +4,13 @@ import numpy as np
 from queue import Queue
 import Audio.Hum_Detector
 import Variables as var
+import time
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 audio_queue = Queue()
 audio = pyaudio.PyAudio()
-stream = audio.open(format = pyaudio.paInt16, #sets the data type as a 16 bit signed binray number
+stream = audio.open(format = pyaudio.paInt16, #sets the data type as a 16 bit signed binary number
                      channels = 1, #sets the audio type as mono
                      rate = 16000, #sets the sample rate
                      input = True, #defines the stream as detecting sound from the mic
@@ -24,7 +25,7 @@ def transform_sample(input_queue):
  if not input_queue.empty(): #if the queue has sounds samples in it
   sample = input_queue.get() #get the set of samples and remove it from the queue
   sample = np.frombuffer(sample, dtype = np.int16) #converts the sample form binary numbers into decimal
-  if 500 < np.mean(np.abs(sample)): #checks whether the average volume detected is loud enough, essentially blocking any background noises
+  if 250 < np.mean(np.abs(sample)): #checks whether the average volume detected is loud enough, essentially blocking any background noises
     sample_magnitude = np.fft.rfft(sample) #applies an fft algorithm to the data of collect their magnitudes
     sample_magnitude = np.abs(sample_magnitude)
     sample_frequency = np.fft.rfftfreq(len(sample), 1.0 / 16000) #applies an fft algorithm to the data to collect their frequencies
@@ -42,9 +43,15 @@ def transform_sample(input_queue):
     MIDI_note = MIDI_note.astype(np.int16) #turns all values into integers so they can be used for indexing
     Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq)
     var.note = note_names[MIDI_note % 12]
+    var.recent_notes.put(main_freq)
+    var.start_time = time.monotonic()
+    if len(list(var.recent_notes.queue)) > 20:
+      var.recent_notes.get()
   else:
     var.note = "-"
     var.humming = False
+    if not var.recent_notes.empty() and time.monotonic() - var.start_time > 1.5:
+      var.recent_notes.get()
 
 threaded_audio = threading.Thread(target = collect_sample, daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
 threaded_audio.start() #starts the thread

@@ -6,7 +6,9 @@ import Raycaster as Raycast
 import Player as player
 import Variables as var
 import Audio.Audio_Input as audio
-#import the other files
+import Audio.Melody_Detector as melody
+#imports the other files
+
 pygame.font.init()
 font = pygame.font.SysFont(None, int(var.screenX * 0.1))
 
@@ -28,5 +30,5 @@ while run: #creates an indefinite loop to keep the game running
     audio.transform_sample(audio.audio_queue)
     text = font.render(f"current note: {var.note}", True, (255, 255, 255))
     display.blit(text, (var.screenX * 0.05, var.screenY * 0.05))
-    print(list(var.recent_notes.queue))
+    melody.determine_melody()
     pygame.display.update() #updates the display

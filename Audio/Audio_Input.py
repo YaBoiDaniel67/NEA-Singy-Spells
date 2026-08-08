@@ -43,15 +43,15 @@ def transform_sample(input_queue):
     MIDI_note = MIDI_note.astype(np.int16) #turns all values into integers so they can be used for indexing
     Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq)
     var.note = note_names[MIDI_note % 12]
-    var.recent_notes.put(main_freq)
-    var.start_time = time.monotonic()
-    if len(list(var.recent_notes.queue)) > 20:
-      var.recent_notes.get()
+    var.recent_notes.append(MIDI_note)
+    var.audio_start_time = time.monotonic()
+    if len(var.recent_notes) > 25:
+      var.recent_notes.pop(0)
   else:
     var.note = "-"
     var.humming = False
-    if not var.recent_notes.empty() and time.monotonic() - var.start_time > 1.5:
-      var.recent_notes.get()
+    if not len(var.recent_notes) == 0 and time.monotonic() - var.audio_start_time > 1.5:
+      var.recent_notes.pop(0)
 
 threaded_audio = threading.Thread(target = collect_sample, daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
 threaded_audio.start() #starts the thread

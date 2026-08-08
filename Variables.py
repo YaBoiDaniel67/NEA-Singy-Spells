@@ -1,6 +1,5 @@
 import pygame
-from queue import Queue
-
+import numpy as np
 screenX, screenY = 320, 180 #initial window size
 display = pygame.display.set_mode((screenX, screenY), pygame.RESIZABLE)
 player_rotation = 0 #players rotation
@@ -15,7 +14,9 @@ world_map = [[1, 1, 1, 1, 1],
              [1, 0, 0, 0, 1],
              [1, 1, 1, 1, 1]]
 
-note = ""
+note = "-"
 humming = False
-recent_notes = Queue()
-start_time = 0
+recent_notes = []
+current_melody = np.array([], dtype = object)
+audio_start_time = 0
+melody_start_time = 0

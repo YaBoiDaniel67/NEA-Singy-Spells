@@ -50,7 +50,7 @@ def transform_sample(input_queue):
   else:
     var.note = "-"
     var.humming = False
-    if not len(var.recent_notes) == 0 and time.monotonic() - var.audio_start_time > 1.5:
+    if not len(var.recent_notes) == 0 and time.monotonic() - var.audio_start_time > 0:
       var.recent_notes.pop(0)
 
 threaded_audio = threading.Thread(target = collect_sample, daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project

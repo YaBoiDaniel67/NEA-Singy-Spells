@@ -14,12 +14,12 @@ world_map = [[1, 1, 1, 1, 1],
              [1, 0, 0, 0, 1],
              [1, 1, 1, 1, 1]]
 
-note = "-"
-humming = False
-recent_notes = []
-current_melody = np.array([], dtype = object)
+note = "-" #current note being detected
+humming = False #whether the note is being hummed
+recent_notes = [] #what notes have been seen recently
+current_melody = np.array([], dtype = object) #what melody is the player currently singing
 audio_start_time = 0
-melody_start_time = 0
+note_start_time = 0
 new_note_start_time = None
 prev_frame_note = 0
 candidate_note = None

@@ -41,16 +41,16 @@ def transform_sample(input_queue):
     MIDI_note = (12 * np.log2(main_freq / 440.0)) + 69 #determines the MIDI note number of the given frequency. first divide by 440 to get a ratio between the detected frequency and A4
     #log2 to determine how many octavs away the note is from A4, times by 12 to covnert this into semitones away form A4. add 69 as that is the midi note number for A4, and therefore cenetrs it around A4
     MIDI_note = MIDI_note.astype(np.int16) #turns all values into integers so they can be used for indexing
-    Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq)
-    var.note = note_names[MIDI_note % 12]
-    var.recent_notes.append(MIDI_note)
-    var.audio_start_time = time.monotonic()
+    Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq) #calls the detect hum subroutine to check whether the sample was hummed
+    var.note = note_names[MIDI_note % 12] #finds the note in letter notation
+    var.recent_notes.append(MIDI_note) #adds the numerical note to the recent note list
+    var.audio_start_time = time.monotonic() #sets audio start time
     if len(var.recent_notes) > 25:
-      var.recent_notes.pop(0)
+      var.recent_notes.pop(0) #if the recent notes list is getting too long, remove the oldest item
   else:
-    var.note = "-"
-    var.humming = False
-    if not len(var.recent_notes) == 0 and time.monotonic() - var.audio_start_time > 0:
+    var.note = "-" #sets note to null
+    var.humming = False #sets humming to false
+    if not len(var.recent_notes) == 0:
       var.recent_notes.pop(0)
 
 threaded_audio = threading.Thread(target = collect_sample, daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project

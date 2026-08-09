@@ -5,11 +5,11 @@ import time
 def determine_melody():
   if var.recent_notes: #if there are any recent notes
     print(var.current_melody)
-    local_recent_note = var.recent_notes[-1] % 12 #takes the most recent detcted note, and scales it down to 1 octave
+    local_recent_note = var.recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
     if len(var.current_melody) > 5: #if the saved melody is getting too long
        var.current_melody = var.current_melody[1:] #removes the oldest value in the melody
     if len(var.current_melody) > 0: #if current melody contains any values
-      if var.current_melody[-1][0] == local_recent_note: #if the note has not changed
+      if var.current_melody[-1][0] == local_recent_note or np.abs(var.recent_notes[-1][1] - var.current_melody[-1][2]) <= 20: #if the note has not changed
         var.current_melody[-1][1] = time.monotonic() - var.note_start_time #update the time the note has been held
         var.candidate_note = None
         var.new_note_start_time = None
@@ -24,7 +24,7 @@ def determine_melody():
         if var.candidate_note == local_recent_note: #if the note is consistent
           if time.monotonic() - var.new_note_start_time > 0.1: #if it has lasted for a reasonable amount of time
             melody_copy = list(var.current_melody) #creates a list version of current melody
-            melody_copy.append(np.array([local_recent_note, 0], dtype = object)) #appends the note array to that local list copy
+            melody_copy.append(np.array([local_recent_note, 0, var.recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
             var.current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
             var.new_note_start_time = None #resets new note start time
             var.candidate_note = None #resets candidate note
@@ -33,7 +33,7 @@ def determine_melody():
           var.new_note_start_time = None #resets new note start time
     else:
       melody_copy = list(var.current_melody) #creates a list version of current melody
-      melody_copy.append(np.array([local_recent_note, 0], dtype = object)) #appends the note array to that local list copy
+      melody_copy.append(np.array([local_recent_note, 0, var.recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
       var.current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
       var.note_start_time = time.monotonic() #sets note start time
         

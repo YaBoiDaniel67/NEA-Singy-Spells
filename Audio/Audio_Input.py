@@ -29,7 +29,7 @@ def transform_sample(input_queue):
     sample_magnitude = np.fft.rfft(sample) #applies an fft algorithm to the data of collect their magnitudes
     sample_magnitude = np.abs(sample_magnitude)
     sample_frequency = np.fft.rfftfreq(len(sample), 1.0 / 16000) #applies an fft algorithm to the data to collect their frequencies
-    valid_buffer = (sample_frequency > 150) #creates a buffer so that low frequencies are ignored, preventing background frequencies from intefering
+    valid_buffer = (sample_frequency > 150) & (sample_frequency < 800) #creates a buffer so that low and high frequencies are ignored, preventing background frequencies from intefering
     valid_sample_magnitude = sample_magnitude[valid_buffer] #applies the buffer to sample_magnitude
     valid_sample_frequency = sample_frequency[valid_buffer] #applies the buffer to sample frequency
     frequency_peaks = valid_sample_frequency[valid_sample_magnitude > 30] #saves frequency values that have a corresponding magnitude greater than 30
@@ -43,7 +43,7 @@ def transform_sample(input_queue):
     MIDI_note = MIDI_note.astype(np.int16) #turns all values into integers so they can be used for indexing
     Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq) #calls the detect hum subroutine to check whether the sample was hummed
     var.note = note_names[MIDI_note % 12] #finds the note in letter notation
-    var.recent_notes.append(MIDI_note) #adds the numerical note to the recent note list
+    var.recent_notes.append([MIDI_note, main_freq]) #adds the numerical note to the recent note list
     var.audio_start_time = time.monotonic() #sets audio start time
     if len(var.recent_notes) > 25:
       var.recent_notes.pop(0) #if the recent notes list is getting too long, remove the oldest item

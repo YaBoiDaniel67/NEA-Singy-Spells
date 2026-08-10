@@ -9,7 +9,7 @@ potential_melody = []
 melody_when_added = ""
 
 def determine_melody():
-  if var.recent_notes: #if there are any recent notes
+  if var.recent_notes and var.note != "-": #if there are any recent notes, and a note is activly being sung
     local_recent_note = var.recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
     if len(var.current_melody) > 10: #if the saved melody is getting too long
        var.current_melody = var.current_melody[1:] #removes the oldest value in the melody
@@ -54,7 +54,7 @@ def check_melody():
     player_intervals = determine_interval(var.current_melody) #finds the intervals between the players notes
     for i, melody in game_melodies.items():
       if len(var.current_melody) >= len(melody) and melody_when_added != str(player_intervals):
-        print(potential_melody, var.current_melody)
+        print(potential_melody)
         game_intervals = determine_interval(melody) #finds the intervals between the games notes
         min_interval_num = min(len(game_intervals), len(player_intervals)) #finds the lower value to iterate over
         correct_interval = 0 #resets correct_interval variable

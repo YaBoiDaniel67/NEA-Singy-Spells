@@ -31,4 +31,5 @@ while run: #creates an indefinite loop to keep the game running
     text = font.render(f"current note: {var.note}", True, (255, 255, 255))
     display.blit(text, (var.screenX * 0.05, var.screenY * 0.05))
     melody.determine_melody()
+    melody.check_melody()
     pygame.display.update() #updates the display

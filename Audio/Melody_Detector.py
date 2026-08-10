@@ -1,10 +1,13 @@
 import Variables as var
 import numpy as np
 import time
+import csv_reader as csv
+
+game_melodies = csv.load_csv_for_reading("Audio/Melody_Data.csv")
+potential_melody = []
 
 def determine_melody():
   if var.recent_notes: #if there are any recent notes
-    print(var.current_melody)
     local_recent_note = var.recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
     if len(var.current_melody) > 5: #if the saved melody is getting too long
        var.current_melody = var.current_melody[1:] #removes the oldest value in the melody
@@ -36,4 +39,15 @@ def determine_melody():
       melody_copy.append(np.array([local_recent_note, 0, var.recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
       var.current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
       var.note_start_time = time.monotonic() #sets note start time
-        
+
+def check_melody():
+  if len(var.current_melody) > 0:
+    for i in range(0, len(game_melodies)):
+      if game_melodies[i][0][0] == var.current_melody[-1][0]:
+        for j in range(len(game_melodies[i])):
+          if game_melodies[i][j][0] == var.current_melody[-(1 + j)][0]:
+           if i not in potential_melody:
+            potential_melody.append(i)
+          else:
+            return
+    print(potential_melody)

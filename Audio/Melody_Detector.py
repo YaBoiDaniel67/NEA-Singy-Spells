@@ -8,6 +8,7 @@ potential_melody = []
 
 def determine_melody():
   if var.recent_notes: #if there are any recent notes
+    print(var.current_melody)
     local_recent_note = var.recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
     if len(var.current_melody) > 5: #if the saved melody is getting too long
        var.current_melody = var.current_melody[1:] #removes the oldest value in the melody
@@ -45,9 +46,16 @@ def check_melody():
     for i in range(0, len(game_melodies)):
       if game_melodies[i][0][0] == var.current_melody[-1][0]:
         for j in range(len(game_melodies[i])):
-          if game_melodies[i][j][0] == var.current_melody[-(1 + j)][0]:
-           if i not in potential_melody:
-            potential_melody.append(i)
+          if j < len(var.current_melody):
+           if np.abs(game_melodies[i][j][0] - var.current_melody[-(1 + j)][0]) == 1:
+            continue
+           elif game_melodies[i][j][0] == var.current_melody[-(1 + j)][0]:
+             match = True
+           else:
+             match = False
+             return
           else:
             return
+        if match == True and i not in potential_melody:
+          potential_melody.append(i)
     print(potential_melody)

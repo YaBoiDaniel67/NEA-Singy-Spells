@@ -6,9 +6,10 @@ import csv_reader as csv
 game_melodies = csv.load_csv_for_reading("Audio/Melody_Data.csv")
 potential_melody = []
 
+melody_when_added = ""
+
 def determine_melody():
   if var.recent_notes: #if there are any recent notes
-    print(var.current_melody)
     local_recent_note = var.recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
     if len(var.current_melody) > 5: #if the saved melody is getting too long
        var.current_melody = var.current_melody[1:] #removes the oldest value in the melody
@@ -42,20 +43,24 @@ def determine_melody():
       var.note_start_time = time.monotonic() #sets note start time
 
 def check_melody():
+  global melody_when_added
   if len(var.current_melody) > 0:
-    for i in range(0, len(game_melodies)):
-      if game_melodies[i][0][0] == var.current_melody[-1][0]:
-        for j in range(len(game_melodies[i])):
-          if j < len(var.current_melody):
-           if np.abs(game_melodies[i][j][0] - var.current_melody[-(1 + j)][0]) == 1:
-            continue
-           elif game_melodies[i][j][0] == var.current_melody[-(1 + j)][0]:
-             match = True
-           else:
-             match = False
-             return
-          else:
-            return
-        if match == True and i not in potential_melody:
-          potential_melody.append(i)
+    for i, melody in game_melodies.items():
+      min_note_num = min(len(melody), len(var.current_melody))
+      correct_note = 0
+      wrong = 0
+      allowed_wrong = int(len(melody) * 0.5)
+      min_correct_notes = max(int(len(melody) * 0.7), 1)
+      for j in range(min_note_num):
+        target_note = melody[j][0]
+        user_note = var.current_melody[-1 - j][0]
+        if abs(target_note - user_note) <= 1:
+          correct_note += 1
+        else:
+          wrong += 1
+        if wrong > allowed_wrong:
+          break
+      if correct_note >= min_correct_notes and melody_when_added != str(var.current_melody[-2][0]):
+        potential_melody.append([i])
+        melody_when_added = str(var.current_melody[-2][0])
     print(potential_melody)

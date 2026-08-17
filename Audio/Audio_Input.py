@@ -7,6 +7,7 @@ import Variables as var
 import time
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+last_singing_time = 0
 
 audio_queue = Queue()
 audio = pyaudio.PyAudio()
@@ -22,6 +23,7 @@ def collect_sample():
   audio_queue.put(data) #puts these samples in a queue
 
 def transform_sample(input_queue):
+ global last_singing_time
  if not input_queue.empty(): #if the queue has sounds samples in it
   sample = input_queue.get() #get the set of samples and remove it from the queue
   sample = np.frombuffer(sample, dtype = np.int16) #converts the sample form binary numbers into decimal
@@ -50,6 +52,9 @@ def transform_sample(input_queue):
   else:
     var.note = "-" #sets note to null
     var.humming = False #sets humming to false
+    last_singing_time = time.monotonic()
+    if np.abs(last_singing_time - time.monotonic()) > 0.5:
+      var.current_melody = np.array([], dtype = object)
     if not len(var.recent_notes) == 0:
       var.recent_notes.pop(0)
 

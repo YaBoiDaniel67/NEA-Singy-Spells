@@ -48,6 +48,14 @@ def determine_interval(melody):
     intervals.append(melody[i][0] - melody[i - 1][0])
   return intervals
 
+def determine_times(melody):
+  player_times = []
+  game_times = []
+  for i in range(len(melody)):
+    game_times.append(melody[i][1])
+    player_times.append(var.current_melody[-(len(melody)) + i][1])
+  return player_times, game_times
+
 def check_melody():
   global melody_when_added #declares melody when added as a global variable
   if len(var.current_melody) > 1: #if current melody holds sufficient data to be a melody
@@ -55,22 +63,29 @@ def check_melody():
     for i, melody in game_melodies.items():
       if len(var.current_melody) >= len(melody) and melody_when_added != str(player_intervals):
         print(potential_melody)
+        print(var.current_melody)
         game_intervals = determine_interval(melody) #finds the intervals between the games notes
+        player_times, game_times = determine_times(melody)
+        player_times = list(np.array(player_times) / sum(player_times))
+        game_times = list(np.array(game_times) / sum(game_times))
         min_interval_num = min(len(game_intervals), len(player_intervals)) #finds the lower value to iterate over
+        correct_time = 0
         correct_interval = 0 #resets correct_interval variable
-        wrong = 0 #resets wrong variable
-        allowed_wrong = max(int(len(game_intervals) * 0.35), 1) #calculates how many wrong intervals the player is allowed
-        min_correct_interval = max(int(len(game_intervals) * 0.65), 1) #calculates how many correct intervals the player must have
+        wrong_interval = 0 #resets wrong_interval variable
+        allowed_wrong = max(int(len(game_intervals) * 0.25), 1) #calculates how many wrong intervals the player is allowed
+        min_correct_interval = max(int(len(game_intervals) * 0.75), 1) #calculates how many correct intervals the player must have
+        for j in range(len(game_times)):
+          if np.abs(player_times[j] - game_times[j]) <= 0.25:
+            correct_time += 1
         for j in range(min_interval_num):
           target_interval = game_intervals[j] #specifies game interval being looked at in this iteration
           user_interval = player_intervals[-len(game_intervals) + j] #specifies player interval being looked at in this iteration
           if abs(target_interval - user_interval) <= 1: #if there is less than 1 note off
             correct_interval += 1
           else:
-            wrong += 1
-          if wrong > allowed_wrong:
+            wrong_interval += 1
+          if wrong_interval > allowed_wrong:
             break
-        if correct_interval >= min_correct_interval: #if there are enoguh correct intervals
+        if correct_interval >= min_correct_interval and correct_time == len(game_times): #if there are enoguh correct intervals and times are valid
           potential_melody.append(i) #adds the melody ID to potential_melody
           melody_when_added = str(player_intervals) #figures out the seocnd to last item of current_melody and saves it
-          return

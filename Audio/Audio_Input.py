@@ -8,6 +8,7 @@ import time
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 last_singing_time = 0
+singing = False
 
 audio_queue = Queue()
 audio = pyaudio.PyAudio()
@@ -24,10 +25,12 @@ def collect_sample():
 
 def transform_sample(input_queue):
  global last_singing_time
+ global singing
  if not input_queue.empty(): #if the queue has sounds samples in it
   sample = input_queue.get() #get the set of samples and remove it from the queue
   sample = np.frombuffer(sample, dtype = np.int16) #converts the sample form binary numbers into decimal
   if 250 < np.mean(np.abs(sample)): #checks whether the average volume detected is loud enough, essentially blocking any background noises
+    singing = True
     sample_magnitude = np.fft.rfft(sample) #applies an fft algorithm to the data of collect their magnitudes
     sample_magnitude = np.abs(sample_magnitude)
     sample_frequency = np.fft.rfftfreq(len(sample), 1.0 / 16000) #applies an fft algorithm to the data to collect their frequencies
@@ -52,8 +55,10 @@ def transform_sample(input_queue):
   else:
     var.note = "-" #sets note to null
     var.humming = False #sets humming to false
-    last_singing_time = time.monotonic()
-    if np.abs(last_singing_time - time.monotonic()) > 0.5:
+    if singing == True:
+      last_singing_time = time.monotonic() #gets the time and stores it
+      singing = False
+    if last_singing_time - time.monotonic() > 0.25:
       var.current_melody = np.array([], dtype = object)
     if not len(var.recent_notes) == 0:
       var.recent_notes.pop(0)

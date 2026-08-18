@@ -23,3 +23,4 @@ note_start_time = 0
 new_note_start_time = None
 prev_frame_note = 0
 candidate_note = None
+melody_lock = False

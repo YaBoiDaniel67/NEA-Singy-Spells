@@ -58,8 +58,9 @@ def transform_sample(input_queue):
     if singing == True:
       last_singing_time = time.monotonic() #gets the time and stores it
       singing = False
-    if last_singing_time - time.monotonic() > 0.25:
+    if time.monotonic() - last_singing_time > 0.1:
       var.current_melody = np.array([], dtype = object)
+      var.melody_lock = False
     if not len(var.recent_notes) == 0:
       var.recent_notes.pop(0)
 

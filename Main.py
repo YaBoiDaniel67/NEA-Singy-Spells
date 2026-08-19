@@ -7,10 +7,11 @@ import Player as player
 import Variables as var
 import Audio.Audio_Input as audio
 import Audio.Melody_Detector as melody
+import spells
 #imports the other files
 
 pygame.font.init()
-font = pygame.font.SysFont(None, int(var.screenX * 0.1))
+font = pygame.font.SysFont(None, int(var.screenX * 0.05))
 
 display = var.display
 clock = pygame.time.Clock()
@@ -24,12 +25,20 @@ while run: #creates an indefinite loop to keep the game running
             run = False #if the cross button is pressed, the window closes - allows exit of the program
         if event.type == VIDEORESIZE:
             var.screenX, var.screenY = display.get_size() #updates screen size, so that game scales to size of screens
-            font = pygame.font.SysFont(None, int(var.screenX * 0.1))
-    Raycast.RayCast(display, var.xPos, var.yPos, frame, var.player_rotation) #calls the raycast subroutine
+            font = pygame.font.SysFont(None, int(var.screenX * 0.05))
+    frame = Raycast.RayCast(var.xPos, var.yPos, frame, var.player_rotation) #calls the raycast subroutine
     var.xPos, var.yPos, var.player_rotation = player.Movement(var.xPos, var.yPos, var.player_rotation, pygame.key.get_pressed()) #calls the movement subroutine
     audio.transform_sample(audio.audio_queue)
     text = font.render(f"current note: {var.note}", True, (255, 255, 255))
     display.blit(text, (var.screenX * 0.05, var.screenY * 0.05))
     melody.determine_melody()
     melody.check_melody()
+    spells.find_spell()
+    for spell in var.projectiles:
+        spell.x += np.cos(spell.ray_angle) * spell.speed
+        spell.y += np.sin(spell.ray_angle) * spell.speed
+        if var.world_map[int(spell.x)][int(spell.y)] != 0:
+            var.projectiles.remove
+        frame = np.array(spells.draw_on_screen)
+    display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (var.screenX, var.screenY)), (0, 0)) #draws the values stored in frame to the screen
     pygame.display.update() #updates the display

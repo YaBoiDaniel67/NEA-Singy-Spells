@@ -1,9 +1,8 @@
 import numpy as np
-import pygame
 import Graphics.Texture_load as textures
 import Variables as var
 
-def RayCast(display, xPos, yPos, frame, player_rotation):
+def RayCast(xPos, yPos, frame, player_rotation):
     for i in range(var.horizontal_res): #loops through the amount of pixels horizontally across the screen
         x, y = xPos, yPos #creates a local copy of the player x and y coords
         player_redundant_ray_angle = np.deg2rad((i / var.pixels_per_degree) - 30) #calculates the angle for the current ray
@@ -64,4 +63,4 @@ def RayCast(display, xPos, yPos, frame, player_rotation):
         pix_x, pix_y = ((x % 1) * 100).astype(int), ((y % 1) * 100).astype(int) #calculates eahc pixel from the texture that is mapped to each specific point in the array, using the non-integer part of the x and y coords (for texture size 100 x 100 pixels)
         shading = 0.2 + 0.8 * (1 - (pix_column / var.halfvertical_res)) #calculates the amount of shade applied, so further away pixels appear darker, adding to sense of depth
         frame[i][var.vertical_res - pix_column - 1] = shading[:, None] * textures.floor[pix_x, pix_y] #sets colour of the pixels using the RGB values of the pixel location on the floor bitmap
-    display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (var.screenX, var.screenY)), (0, 0)) #draws the values stored in frame to the screen
+    return frame

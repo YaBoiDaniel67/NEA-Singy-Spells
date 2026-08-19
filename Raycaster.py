@@ -40,6 +40,7 @@ def RayCast(xPos, yPos, frame, player_rotation):
             distance = abs((mapX - xPos + (1 - step_x) / 2) / cos) #calculates shortest (perpendicular) distance from player to wall
         else:
             distance = abs((mapY - yPos + (1 - step_y) / 2) / sin) #calculates shortest (perpendicular) distance from player to wall
+        var.depth[i] = distance
         x = xPos + distance * cos #sets new x, adding on scaled distance
         y = yPos + distance * sin #sets new y, adding on scaled distance
         height = int(var.vertical_res / (distance * correctional_cos + 0.0001)) #calculates the height of the wall (how many available wall pixels / how far away the wall is * correctional_cos to correct fish eye distortion, add small value to prevent division by 0)

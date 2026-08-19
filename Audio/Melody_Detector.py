@@ -61,7 +61,6 @@ def check_melody():
   if time.monotonic() - last_melody_check < 0.05: #prevents the loop running too many times, bossitng performance slightly
     return
   last_melody_check = time.monotonic()
-  print(var.potential_melody)
   global melody_when_added #declares melody when added as a global variable
   if len(var.current_melody) > 1: #if current melody holds sufficient data to be a melody
     player_intervals = determine_interval(var.current_melody) #finds the intervals between the players notes

@@ -30,15 +30,15 @@ while run: #creates an indefinite loop to keep the game running
     var.xPos, var.yPos, var.player_rotation = player.Movement(var.xPos, var.yPos, var.player_rotation, pygame.key.get_pressed()) #calls the movement subroutine
     audio.transform_sample(audio.audio_queue)
     text = font.render(f"current note: {var.note}", True, (255, 255, 255))
-    display.blit(text, (var.screenX * 0.05, var.screenY * 0.05))
     melody.determine_melody()
     melody.check_melody()
     spells.find_spell()
     for spell in var.projectiles:
         spell.x += np.cos(spell.ray_angle) * spell.speed
         spell.y += np.sin(spell.ray_angle) * spell.speed
-        if var.world_map[int(spell.x)][int(spell.y)] != 0:
-            var.projectiles.remove
-        frame = np.array(spells.draw_on_screen)
+        if var.world_map[max(0, min(int(spell.x), len(var.world_map) - 1))][max(0, min(int(spell.y), len(var.world_map[0]) - 1))] != 0:
+            var.projectiles.remove(spell)
+        frame = spells.draw_on_screen(frame, spell)
     display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (var.screenX, var.screenY)), (0, 0)) #draws the values stored in frame to the screen
+    display.blit(text, (var.screenX * 0.05, var.screenY * 0.05))
     pygame.display.update() #updates the display

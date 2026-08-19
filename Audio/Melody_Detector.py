@@ -7,6 +7,7 @@ game_melodies = csv.load_csv_for_reading("Audio/Melody_Data.csv")
 potential_melody = []
 
 melody_when_added = ""
+last_melody_check = 0
 
 def determine_melody():
   if var.recent_notes and var.note != "-": #if there are any recent notes, and a note is activly being sung
@@ -57,6 +58,10 @@ def determine_times(melody):
   return game_times
 
 def check_melody():
+  global last_melody_check
+  if time.monotonic() - last_melody_check < 0.05:
+    return
+  last_melody_check = time.monotonic()
   print(potential_melody)
   global melody_when_added #declares melody when added as a global variable
   if len(var.current_melody) > 1: #if current melody holds sufficient data to be a melody

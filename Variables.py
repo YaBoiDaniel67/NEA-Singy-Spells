@@ -14,10 +14,13 @@ world_map = [[1, 1, 1, 1, 1],
              [1, 0, 0, 0, 1],
              [1, 1, 1, 1, 1]]
 
+melody_list = ["Happy Birthday", "Twinkle Twinkle Little Star"]
+
 note = "-" #current note being detected
 humming = False #whether the note is being hummed
 recent_notes = [] #what notes have been seen recently
 current_melody = np.array([], dtype = object) #what melody is the player currently singing
+potential_melody = [] #what melodies the algorithm has detected the player singing
 audio_start_time = 0
 note_start_time = 0
 new_note_start_time = None

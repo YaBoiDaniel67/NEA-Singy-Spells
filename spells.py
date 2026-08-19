@@ -10,12 +10,12 @@ spells = {"Fireball": { #creates a dict that contain all spells and their corres
 
 def get_ray_angle():
    mouseX, mouseY = pygame.mouse.get_pos() #gets the mouse X coord on screen
-   redundant_ray_angle = np.deg2rad(((mouseX / var.screenX * var.horizontal_res) / var.pixels_per_degree) - 30)
-   projectile_angle = var.player_rotation + redundant_ray_angle
-   return projectile_angle
+   redundant_ray_angle = np.deg2rad((((mouseX / var.screenX) * var.horizontal_res) / var.pixels_per_degree) - 30) #calculates the angle of the ray the mouse is pointing on
+   projectile_angle = var.player_rotation + redundant_ray_angle #adds player rotation to this ray
+   return projectile_angle #returns the ray angle
 
 class Fireball:
-  def __init__(self):
+  def __init__(self): #intialises variable for Fireball class
      self.damage = 20.0
      self.speed = 0.01
      self.x = var.xPos
@@ -24,19 +24,19 @@ class Fireball:
      self.texture = texture.Fireball
 
 def find_spell():
-    if len(var.potential_melody) > 0:
-      for spell_name, spell in spells.items():
-          if spell["melody_ID"] in var.potential_melody:
-             cast_spell(spell_name)
+    if len(var.potential_melody) > 0: #if the players has sung a melody
+      for spell_name, spell in spells.items(): #loops through all the spells
+          if spell["melody_ID"] in var.potential_melody: #if that spell is the one the player sang
+             cast_spell(spell_name) #calls cast spell
 
 def cast_spell(spell_name):
-   match spell_name:
+   match spell_name: #case statement to match the spell name to its spell
       case "Fireball":
-         spawn_fireball()
-   print(var.potential_melody.pop())
+         spawn_fireball() #calls the spawn fireball subroutine
+   var.potential_melody.pop() #removes the value from var.potential_melody
 
 def spawn_fireball():
-   var.projectiles.append(Fireball())
+   var.projectiles.append(Fireball()) #adds an instance of the firball class to var.projectiles
 
 def draw_on_screen(frame, current_object):
    angle_to_projectile_from_player = np.arctan2(current_object.y - var.yPos, current_object.x - var.xPos) #calculates the angle from the player to the projectile

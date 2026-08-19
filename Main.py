@@ -40,5 +40,5 @@ while run: #creates an indefinite loop to keep the game running
             var.projectiles.remove(spell)
         frame = spells.draw_on_screen(frame, spell)
     display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (var.screenX, var.screenY)), (0, 0)) #draws the values stored in frame to the screen
-    display.blit(text, (var.screenX * 0.05, var.screenY * 0.05))
+    display.blit(text, (var.screenX * 0.05, var.screenY * 0.05)) #draws the current note text to screen
     pygame.display.update() #updates the display

@@ -28,5 +28,5 @@ prev_frame_note = 0
 candidate_note = None
 melody_lock = False
 
-projectiles = []
+spells = []
 depth = np.zeros(horizontal_res)

@@ -3,7 +3,7 @@ import numpy as np
 import time
 import csv_reader as csv
 
-game_melodies = csv.load_csv_for_reading("Audio/Melody_Data.csv")
+game_melodies = csv.load_csv_for_reading("Audio/Melody_Data.csv") #sets game_melodies to the interpreted values form the csv file storing melodies
 
 melody_when_added = ""
 last_melody_check = 0

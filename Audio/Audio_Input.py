@@ -55,14 +55,14 @@ def transform_sample(input_queue):
   else:
     var.note = "-" #sets note to null
     var.humming = False #sets humming to false
-    if singing == True:
-      last_singing_time = time.monotonic() #gets the time and stores it
-      singing = False
-    if time.monotonic() - last_singing_time > 0.1:
-      var.current_melody = np.array([], dtype = object)
-      var.melody_lock = False
-    if not len(var.recent_notes) == 0:
-      var.recent_notes.pop(0)
+    if singing == True: #if the user has jsut stopped singing
+      last_singing_time = time.monotonic() #gets the time and stores it #figures out time the singing stopped
+      singing = False #sets singing to False so this block doesnt run again until more singing has been detected
+    if time.monotonic() - last_singing_time > 0.1: #if no singing has been detected for a bit
+      var.current_melody = np.array([], dtype = object) #clears var.current_melody
+      var.melody_lock = False #turns of melody_lock
+    if not len(var.recent_notes) == 0: #if var.recnt_notes has stuff in it
+      var.recent_notes.pop(0) #remvoes the oldest item in var.recent_notes
 
 threaded_audio = threading.Thread(target = collect_sample, daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
 threaded_audio.start() #starts the thread

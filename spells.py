@@ -11,8 +11,8 @@ spells = {"Fireball": { #creates a dict that contain all spells and their corres
 def get_ray_angle():
    mouseX, mouseY = pygame.mouse.get_pos() #gets the mouse X coord on screen
    redundant_ray_angle = np.deg2rad((((mouseX / var.screenX) * var.horizontal_res) / var.pixels_per_degree) - 30) #calculates the angle of the ray the mouse is pointing on
-   projectile_angle = var.player_rotation + redundant_ray_angle #adds player rotation to this ray
-   return projectile_angle #returns the ray angle
+   ray_angle = var.player_rotation + redundant_ray_angle #adds player rotation to this ray
+   return ray_angle #returns the ray angle
 
 class Fireball:
   def __init__(self): #intialises variable for Fireball class
@@ -60,7 +60,7 @@ def draw_on_screen(frame, current_object):
           column = np.arange(left, right) #creates a numpy array containing all horizontal columns to be drawn
           tex_y_array = ((row - top) / height * current_object.texture.shape[1]).astype(int) #maps each screen row to a texture y row
           tex_x_array = ((column - left) / width * current_object.texture.shape[0]).astype(int) #maps each screen column to a texture x column
-          for i, j in enumerate(column): #iterates over all columns where sprite could be drawn
+          for i, j in enumerate(column): #iterates over all columns where a sprite could be drawn
             if 0 <= j < var.horizontal_res: #if its on-screen
               if distance < var.depth[j]: #if it closer than the corresponding wall column
                 tex_x = tex_x_array[i] #gets the texture column corresponding to this screen column

@@ -68,12 +68,12 @@ def check_melody():
     for i in range(len(var.current_melody)): #loops through all notes currently in var.current_melody
       player_times.append(var.current_melody[i][1]) #adds the time to player times
     player_times = list(np.array(player_times) / sum(player_times)) #normalises player times so it is a ratio between the time and total time
-    for i, melody in game_melodies.items(): #loops through all melldies in game_melodies
+    for i, melody in game_melodies.items(): #loops through all melodies in game_melodies
       if len(var.current_melody) >= len(melody) and not var.melody_lock: #if current melody is long enough to potentially be melody, and there is no melody lock active
         game_intervals = determine_interval(melody) #finds the intervals between the games notes
         game_times = determine_times(melody) #finds the times for each note
         game_times = list(np.array(game_times) / sum(game_times)) #normalises the times into ratio form
-        min_correct_time = max(int(len(game_times) * 0.75), 1) #calculates the minimum number of correct times needed for the emlody to be detected
+        min_correct_time = max(int(len(game_times) * 0.75), 1) #calculates the minimum number of correct times needed for the melody to be detected
         min_interval_num = len(game_intervals) #calculates the minimum nubmer of intervals needed for the melody
         allowed_wrong = int(len(game_intervals) * 0.25) #calculates how many wrong intervals the player is allowed
         min_correct_interval = max(int(len(game_intervals) * 0.75), 1) #calculates how many correct intervals the player must have
@@ -89,23 +89,23 @@ def check_melody():
                 correct_time += 1 #adds one to correct time
               else: #if the timne difference is to big
                 wrong_time += 1 #adds 1 to wrong time
-                if wrong_time > min_correct_time: #of too many wrong times have been detected
+                if wrong_time > min_correct_time: #if too many wrong times have been detected
                   break #exits the loop
             if wrong_time < best_time_wrong: #if this iteration has less wrongs than the previous least
               best_time_wrong = wrong_time #sets this as the new leat amount of wrongs
-        for j in range(len(player_intervals) - min_interval_num + 1): #slides a window of size min_interval_num acorss player_intervals
-          wrong_interval = 0 #resets wrong_interval
-          correct_interval = 0 #resets correct_interval
-          for k in range(min_interval_num): #loops through all values in game_intervals
-            if abs(player_intervals[j + k] - game_intervals[k]) <= 1: #if the players note is within 1 of where it should be it is allowed
-              correct_interval += 1 #adds 1 to correct interval
-            else: #if the difference in note sis more than 1
-              wrong_interval += 1 #adds 1 to worng inte4rval
-              if wrong_interval > allowed_wrong: #if the player has gotten too many intervals wrong
-                break #breaks the loop
-          if wrong_interval < best_wrong: #if fewer wrong intervals have eben recorded than the previous fewest
-            best_wrong = wrong_interval #saves least worng intervals so far to best_wrong
-            best_correct = correct_interval #saves the most correct intervals so far to best_correct
+          for j in range(len(player_intervals) - min_interval_num + 1): #slides a window of size min_interval_num acorss player_intervals
+            wrong_interval = 0 #resets wrong_interval
+            correct_interval = 0 #resets correct_interval
+            for k in range(min_interval_num): #loops through all values in game_intervals
+              if abs(player_intervals[j + k] - game_intervals[k]) <= 1: #if the players note is within 1 of where it should be it is allowed
+                correct_interval += 1 #adds 1 to correct interval
+              else: #if the difference in note sis more than 1
+                wrong_interval += 1 #adds 1 to worng inte4rval
+                if wrong_interval > allowed_wrong: #if the player has gotten too many intervals wrong
+                  break #breaks the loop
+            if wrong_interval < best_wrong: #if fewer wrong intervals have eben recorded than the previous fewest
+              best_wrong = wrong_interval #saves least worng intervals so far to best_wrong
+              best_correct = correct_interval #saves the most correct intervals so far to best_correct
         if best_correct >= min_correct_interval and best_time_wrong <= allowed_wrong: #if there are enoguh correct intervals and times
           var.potential_melody.append(i) #adds the melody ID to potential_melody
           var.melody_lock = True #activates the melody lock

@@ -10,7 +10,7 @@ halfvertical_res = int(vertical_res / 2) #half the vertical resolution
 pixels_per_degree = horizontal_res/60 #scale factor - FOV is 60deg
 world_map = [[1, 1, 1, 1, 1, 1, 1, 1],
              [1, 0, 0, 0, 0, 0, 0, 1],
-             [1, 0, 0, 0, 1, 1, 1, 1],
+             [1, 0, 0, 0, 0, 1, 1, 1],
              [1, 0, 0, 0, 1],
              [1, 1, 1, 1, 1]]
 

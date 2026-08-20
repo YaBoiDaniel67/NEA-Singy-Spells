@@ -14,4 +14,5 @@ wall = pygame.surfarray.array3d(pygame.transform.scale(wall, (100, var.halfverti
 
 Fireball = pygame.image.load("Graphics/Textures/Fireball.png").convert()
 Fireball = pygame.surfarray.array3d(Fireball)
+
 #converts the textures into scaled images, and then surfarray.3darray converts the image into a 3d numpy array of dimensions width, height, and a list of the pixels 3 RGB values

@@ -47,15 +47,15 @@ def draw_on_screen(frame, current_object):
         if var.world_map[max(0, min(int(current_object.x), len(var.world_map) - 1))][max(0, min(int(current_object.y), len(var.world_map[0]) - 1))] != 0:
           var.spells.remove(current_object)
         angle_to_projectile_from_player = np.arctan2(current_object.y - var.yPos, current_object.x - var.xPos) #calculates the angle from the player to the projectile
-        redundant_angle = angle_to_projectile_from_player - var.player_rotation #changes the angle so it is relative to where the player is facing
-        redundant_angle = (redundant_angle + np.pi) % (2 * np.pi) - np.pi #shifts the angle between -pi and pi
-        screenX = int((np.rad2deg(redundant_angle) + 30) * var.pixels_per_degree) #calculates the column where the sprite centre should appear
-        if 0 <= screenX - current_object.texture.shape[0] / 2 < var.horizontal_res: #if its on-screen
+        no_rotation_angle = angle_to_projectile_from_player - var.player_rotation #changes the angle so it is relative to where the player is facing
+        no_rotation_angle = (no_rotation_angle + np.pi) % (2 * np.pi) - np.pi #shifts the angle between -pi and pi
+        screen_column = int((np.rad2deg(no_rotation_angle) + 30) * var.pixels_per_degree) #calculates the column where the sprite centre should appear
+        if 0 <= screen_column - current_object.texture.shape[0] / 2 < var.horizontal_res: #if its on-screen
           distance = np.sqrt((current_object.x - var.xPos) ** 2 + (current_object.y - var.yPos)** 2) #calculates the distance of the projectile from the player
-          height = int((var.vertical_res / (distance * np.cos(redundant_angle) + 1e-6)) * 0.2) #calculates the height of the sprite on screen
+          height = int((var.vertical_res / (distance * np.cos(no_rotation_angle) + 1e-6)) * 0.2) #calculates the height of the sprite on screen
           width = height #gets the width, which is just the height
           top, bottom = max(0, var.halfvertical_res - height // 2), min(var.vertical_res, var.halfvertical_res + height // 2) #determines the top and bottom rows of the sprite in relations to the screen
-          left, right = screenX - width // 2, screenX + width // 2 #determiens the left and right columns of the sprite in relation to the screen
+          left, right = screen_column - width // 2, screen_column + width // 2 #determiens the left and right columns of the sprite in relation to the screen
           row = np.arange(top, bottom) #creates a numpy array containing all vertical rows to be drawn
           column = np.arange(left, right) #creates a numpy array containing all horizontal columns to be drawn
           tex_y_array = ((row - top) / height * current_object.texture.shape[1]).astype(int) #maps each screen row to a texture y row

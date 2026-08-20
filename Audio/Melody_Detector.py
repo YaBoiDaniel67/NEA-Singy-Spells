@@ -11,7 +11,7 @@ last_melody_check = 0
 def determine_melody():
   if var.recent_notes and var.note != "-": #if there are any recent notes, and a note is activly being sung
     local_recent_note = var.recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
-    if len(var.current_melody) > 10: #if the saved melody is getting too long
+    if len(var.current_melody) > 25: #if the saved melody is getting too long
        var.current_melody = var.current_melody[1:] #removes the oldest value in the melody
     if len(var.current_melody) > 0: #if current melody contains any values
       if var.current_melody[-1][0] == local_recent_note or np.abs(var.recent_notes[-1][1] - var.current_melody[-1][2]) <= 20: #if the note has not changed
@@ -28,7 +28,7 @@ def determine_melody():
         if var.candidate_note == local_recent_note: #if the note is consistent
           if time.monotonic() - var.new_note_start_time > 0.1: #if it has lasted for a reasonable amount of time
             if len(var.current_melody) > 0:
-              var.current_melody[-1][1] = time.monotonic() - var.note_start_time
+              var.current_melody[-1][1] = time.monotonic() - var.note_start_time #updates the notes time held to ensure it is fully accurate
             melody_copy = list(var.current_melody) #creates a list version of current melody
             melody_copy.append(np.array([local_recent_note, 0, var.recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
             var.current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
@@ -45,13 +45,13 @@ def determine_melody():
       var.note_start_time = time.monotonic() #sets note start time
 
 def determine_interval(melody):
-  intervals = [] #defines an empty list to store itnervals
+  intervals = [] #defines an empty list to store intervals
   for i in range(1, len(melody)): #starts at 1 so it can compare indexes 1 and 0 for the first interval
     intervals.append(melody[i][0] - melody[i - 1][0]) #calculates the interval between the notes and adds it to the interval list
   return intervals
 
 def determine_times(melody):
-  game_times = []
+  game_times = [] #define an empty list to store game times
   for i in range(len(melody)):
     game_times.append(melody[i][1]) #adds the time value from the input to game_times
   return game_times
@@ -81,7 +81,7 @@ def check_melody():
         best_correct = 0 #initialises best_correct
         best_time_wrong = 999 #initialises best_time_wrong
         if len(player_times) >= len(game_times): #if the player has enough times that it could be the melody
-          for j in range(len(player_times) - len(game_times) + 1): #slides a window of length game_times across player_times
+          for j in range(len(player_times) - len(game_times) + 1): #slides a window across player times, stopping when there are only a game times amount of times left
             correct_time = 0 #resets correct time
             wrong_time = 0 #resets wrong time
             for k in range(len(game_times)): #loops through all values of game_times
@@ -93,7 +93,7 @@ def check_melody():
                   break #exits the loop
             if wrong_time < best_time_wrong: #if this iteration has less wrongs than the previous least
               best_time_wrong = wrong_time #sets this as the new leat amount of wrongs
-          for j in range(len(player_intervals) - min_interval_num + 1): #slides a window of size min_interval_num acorss player_intervals
+          for j in range(len(player_intervals) - min_interval_num + 1): #slides a window across player intervals, stopping when there is only a melodies amount of notes left
             wrong_interval = 0 #resets wrong_interval
             correct_interval = 0 #resets correct_interval
             for k in range(min_interval_num): #loops through all values in game_intervals

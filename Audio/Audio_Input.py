@@ -31,7 +31,7 @@ def transform_sample(input_queue):
   sample = np.frombuffer(sample, dtype = np.int16) #converts the sample form binary numbers into decimal
   if 250 < np.mean(np.abs(sample)): #checks whether the average volume detected is loud enough, essentially blocking any background noises
     singing = True
-    sample_magnitude = np.fft.rfft(sample) #applies an fft algorithm to the data of collect the post-fft complex numbers
+    sample_magnitude = np.fft.rfft(sample) #applies an fft algorithm to the data and collects the post-fft complex numbers
     sample_magnitude = np.abs(sample_magnitude) #calculates the magnitude of all these complex numbers, giving the magnitude of that specific sample
     sample_frequency = np.fft.rfftfreq(len(sample), 1.0 / 16000) #applies an fft algorithm to the data to collect their frequencies
     valid_buffer = (sample_frequency > 150) & (sample_frequency < 800) #creates a buffer so that low and high frequencies are ignored, preventing background frequencies from intefering

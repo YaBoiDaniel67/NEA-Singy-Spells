@@ -58,7 +58,7 @@ def determine_times(melody):
 
 def check_melody():
   global last_melody_check #declares last_melody_check as a global variable
-  if time.monotonic() - last_melody_check < 0.05: #prevents the loop running too many times, bossitng performance slightly
+  if time.monotonic() - last_melody_check < 0.05: #prevents the loop running too many times, boosting performance slightly
     return
   last_melody_check = time.monotonic()
   global melody_when_added #declares melody when added as a global variable

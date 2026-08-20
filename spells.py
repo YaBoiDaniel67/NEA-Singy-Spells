@@ -37,7 +37,7 @@ def cast_spell(spell_name):
    var.potential_melody.pop() #removes the value from var.potential_melody
 
 def spawn_fireball():
-   var.spells.append(Fireball()) #adds an instance of the firball class to var.spells
+   var.spells.append(Fireball()) #adds an instance of the fireball class to var.spells
 
 def draw_on_screen(frame, current_object):
    match current_object.type:

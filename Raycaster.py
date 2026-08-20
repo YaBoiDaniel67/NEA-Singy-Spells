@@ -14,13 +14,13 @@ def RayCast(xPos, yPos, frame, player_rotation):
             cos = 1e-6 #prevents any divisions by 0 that could occur
         frame[i][:] = textures.sky[int(np.rad2deg(ray_angle) % 359)][:] #calculates how far round in deg (0 - 359) this sky column is, maps this frame index to a given pixel column in the sky bitmap
         mapX, mapY = int(x), int(y) #saves the int of x and y to prevent recalculation, increasing efficiency
-        tile_dist_x, tile_dist_y = abs(1 / cos), abs(1 / sin) #calculates how much distance a rasy must corss to travel over one tile in x or y
+        tile_dist_x, tile_dist_y = abs(1 / cos), abs(1 / sin) #calculates how much distance a ray must cross to travel over one tile in x or y
         if cos > 0: #if ray is to the right
             step_x = 1 #step to the right
             side_dist_x = (mapX + 1 - xPos) * tile_dist_x #calculates distance of player from grid boundary
         else:
             step_x = -1 #step to the left
-            side_dist_x = (xPos - mapX) * tile_dist_x #calculates distance of player form grid boundary
+            side_dist_x = (xPos - mapX) * tile_dist_x #calculates distance of player from grid boundary
         if sin > 0: #if ray is pointing down the map
             step_y = 1 #step down
             side_dist_y = (mapY + 1 - yPos) * tile_dist_y #calculates distance of player from grid boundary
@@ -40,14 +40,14 @@ def RayCast(xPos, yPos, frame, player_rotation):
             distance = abs((mapX - xPos + (1 - step_x) / 2) / cos) #calculates shortest (perpendicular) distance from player to wall
         else:
             distance = abs((mapY - yPos + (1 - step_y) / 2) / sin) #calculates shortest (perpendicular) distance from player to wall
-        var.depth[i] = distance
+        var.depth[i] = distance #adds the distance of this column to the corresponding index in var.depth
         x = xPos + distance * cos #sets new x, adding on scaled distance
         y = yPos + distance * sin #sets new y, adding on scaled distance
-        height = int(var.vertical_res / (distance * correctional_cos + 0.0001)) #calculates the height of the wall (how many available wall pixels / how far away the wall is * correctional_cos to correct fish eye distortion, add small value to prevent division by 0)
+        height = int(var.vertical_res / (distance * correctional_cos + 1e-6)) #calculates the height of the wall (how many available wall pixels / how far away the wall is * correctional_cos to correct fish eye distortion, add small value to prevent division by 0)
         half_height = int(height / 2) #saved to variable to prevent unnecessary, repetative calculations
         pix_x = int((x % 1) * 100) #calculates the x coord of the pixel on the bitmap (size 100 x 100)
         if x % 1 > 0.99 or x % 1 < 0.01: #checks if non-int parts of x are near a whole number
-            pix_x =  int((y % 1) * 100) #if x is near a whole number, the horizontal coord needs to be the y coord
+            pix_x = int((y % 1) * 100) #if x is near a whole number, the horizontal coord needs to be the y coord
         wall_top = max(0, var.halfvertical_res - half_height) #calculates the top of the wall
         wall_bottom = min(var.vertical_res, var.halfvertical_res + half_height) #calculate the bottom of the wall
         visible_height = wall_bottom - wall_top #calculates the height of a given wall that is on screen
@@ -58,10 +58,10 @@ def RayCast(xPos, yPos, frame, player_rotation):
         pix_y = ((pix_column / height) * (textures.wall.shape[1])).astype(int) #creates a decimal between 0 and 1, scales that to fit the wall texture, and saves the int of that. Creates a list of the specific texture points for this slice
         cut_wall_texture = max(0, half_height - var.halfvertical_res) #calculates how much of the texture is cut off the top of the screen
         frame[i][wall_top : wall_bottom] = shading * textures.wall[pix_x][pix_y[cut_wall_texture : cut_wall_texture + visible_height]] #sets the RGB colour values of the specific column, using the wall bitmap
-        pix_column = np.arange(var.halfvertical_res - half_height + 1)  #creates an array of all pixels vertically across screen where floor needs to be filled
-        distance = (var.halfvertical_res / (var.halfvertical_res - pix_column)) / correctional_cos #creates an array of eahc pixels distance from the player
+        pix_column = np.arange(var.halfvertical_res - half_height)  #creates an array of all pixels vertically across screen where floor needs to be filled
+        distance = (var.halfvertical_res / (var.halfvertical_res - pix_column)) / correctional_cos #creates an array of each pixels distance from the player
         x, y = xPos + cos * distance, yPos + sin * distance #creates arrays of the x and y position of each pixel
-        pix_x, pix_y = ((x % 1) * 100).astype(int), ((y % 1) * 100).astype(int) #calculates eahc pixel from the texture that is mapped to each specific point in the array, using the non-integer part of the x and y coords (for texture size 100 x 100 pixels)
+        pix_x, pix_y = ((x % 1) * 100).astype(int), ((y % 1) * 100).astype(int) #calculates each pixel from the texture that is mapped to each specific point in the array, using the non-integer part of the x and y coords (for texture size 100 x 100 pixels)
         shading = 0.2 + 0.8 * (1 - (pix_column / var.halfvertical_res)) #calculates the amount of shade applied, so further away pixels appear darker, adding to sense of depth
         frame[i][var.vertical_res - pix_column - 1] = shading[:, None] * textures.floor[pix_x, pix_y] #sets colour of the pixels using the RGB values of the pixel location on the floor bitmap
     return frame

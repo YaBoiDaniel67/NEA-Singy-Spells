@@ -42,15 +42,15 @@ def spawn_fireball():
 def draw_on_screen(frame, current_object):
    match current_object.type:
       case "projectile":
-        current_object.x += np.cos(current_object.ray_angle) * current_object.speed
-        current_object.y += np.sin(current_object.ray_angle) * current_object.speed
-        if var.world_map[max(0, min(int(current_object.x), len(var.world_map) - 1))][max(0, min(int(current_object.y), len(var.world_map[0]) - 1))] != 0:
+        current_object.x += np.cos(current_object.ray_angle) * current_object.speed #updates objects x position
+        current_object.y += np.sin(current_object.ray_angle) * current_object.speed #updates objects y position
+        if var.world_map[max(0, min(int(current_object.x), len(var.world_map) - 1))][max(0, min(int(current_object.y), len(var.world_map[0]) - 1))] != 0: #if the object if touching a wall
           var.spells.remove(current_object)
         angle_to_projectile_from_player = np.arctan2(current_object.y - var.yPos, current_object.x - var.xPos) #calculates the angle from the player to the projectile
         no_rotation_angle = angle_to_projectile_from_player - var.player_rotation #changes the angle so it is relative to where the player is facing
         no_rotation_angle = (no_rotation_angle + np.pi) % (2 * np.pi) - np.pi #shifts the angle between -pi and pi
         screen_column = int((np.rad2deg(no_rotation_angle) + 30) * var.pixels_per_degree) #calculates the column where the sprite centre should appear
-        if 0 <= screen_column - current_object.texture.shape[0] / 2 < var.horizontal_res: #if its on-screen
+        if 0 - current_object.texture.shape[0] < screen_column - (current_object.texture.shape[0] / 2) < var.horizontal_res + current_object.texture.shape[0]: #if its on-screen
           distance = np.sqrt((current_object.x - var.xPos) ** 2 + (current_object.y - var.yPos)** 2) #calculates the distance of the projectile from the player
           height = int((var.vertical_res / (distance * np.cos(no_rotation_angle) + 1e-6)) * 0.2) #calculates the height of the sprite on screen
           width = height #gets the width, which is just the height

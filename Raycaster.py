@@ -14,7 +14,7 @@ def RayCast(xPos, yPos, frame, player_rotation):
             cos = 1e-6 #prevents any divisions by 0 that could occur
         frame[i][:] = textures.sky[int(np.rad2deg(ray_angle) % 359)][:] #calculates how far round in deg (0 - 359) this sky column is, maps this frame index to a given pixel column in the sky bitmap
         mapX, mapY = int(x), int(y) #saves the int of x and y to prevent recalculation, increasing efficiency
-        tile_dist_x, tile_dist_y = abs(1 / cos), abs(1 / sin) #calculates how much distance a ray must cross to travel over one tile in x or y
+        tile_dist_x, tile_dist_y = abs(1 / cos), abs(1 / sin) #calculates how much distance a ray must cross to travel over one tile of space in x or y
         if cos > 0: #if ray is to the right
             step_x = 1 #step to the right
             side_dist_x = (mapX + 1 - xPos) * tile_dist_x #calculates distance of player from grid boundary

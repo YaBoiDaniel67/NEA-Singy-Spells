@@ -14,30 +14,29 @@ def get_ray_angle():
    ray_angle = var.player_rotation + redundant_ray_angle #adds player rotation to this ray
    return ray_angle #returns the ray angle
 
-class Fireball:
-  def __init__(self): #intialises variable for Fireball class
-     self.damage = 20.0
-     self.speed = 0.01
-     self.x = var.xPos
-     self.y = var.yPos
-     self.ray_angle = get_ray_angle()
-     self.texture = texture.Fireball
-     self.type = "projectile"
+class Spell():
+  def __init__(self, damage, speed, x, y, ray_angle, texture, type): #intialises general variables for spell class
+     self.damage = damage
+     self.speed = speed
+     self.x = x
+     self.y = y
+     self.ray_angle =ray_angle
+     self.texture = texture
+     self.type = type
+
+class Fireball(Spell):
+   def spell_special():
+      print("tbc")
 
 def find_spell():
     if len(var.potential_melody) > 0: #if the players has sung a melody
       for spell_name, spell in spells.items(): #loops through all the spells
           if spell["melody_ID"] in var.potential_melody: #if that spell is the one the player sang
-             cast_spell(spell_name) #calls cast spell
-
-def cast_spell(spell_name):
-   match spell_name: #case statement to match the spell name to its spell
-      case "Fireball":
-         spawn_fireball() #calls the spawn fireball subroutine
-   var.potential_melody.pop() #removes the value from var.potential_melody
-
-def spawn_fireball():
-   var.spells.append(Fireball()) #adds an instance of the fireball class to var.spells
+             match spell_name: #case statement to match the spell name to its spell
+                   case "Fireball":
+                     var.spells.append(Fireball(20, 0.01, var.xPos, var.yPos, get_ray_angle(), texture.Fireball, "projectile")) #adds an instance of the fireball class to var.spells
+             var.potential_melody.pop() #removes the value from var.potential_melody
+               
 
 def draw_on_screen(frame, current_object):
    match current_object.type:

@@ -6,7 +6,7 @@ display = var.display
 play_button = pygame.image.load("Graphics/Textures/Play_Button.png").convert()
 
 sky = pygame.image.load("Graphics/Textures/sky.png").convert()
-sky = pygame.surfarray.array3d(pygame.transform.scale(sky, (360, var.vertical_res)))
+sky = pygame.surfarray.array3d(sky)
 
 floor = pygame.image.load("Graphics/Textures/Floor.png").convert()
 floor = pygame.surfarray.array3d(pygame.transform.scale(floor, (100, var.halfvertical_res )))

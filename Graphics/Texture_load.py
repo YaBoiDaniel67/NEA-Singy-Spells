@@ -3,6 +3,8 @@ from pygame.locals import *
 import Variables as var
 display = var.display
 
+play_button = pygame.image.load("Graphics/Textures/Play_Button.png").convert()
+
 sky = pygame.image.load("Graphics/Textures/sky.png").convert()
 sky = pygame.surfarray.array3d(pygame.transform.scale(sky, (360, var.vertical_res)))
 

@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 screenX, screenY = 320, 180 #initial window size
 display = pygame.display.set_mode((screenX, screenY), pygame.RESIZABLE)
+game_state = "Main Menu"
 player_rotation = 0 #players rotation
 xPos, yPos = (3, 3) #players coords
 horizontal_res = 120 #horizontal resolution

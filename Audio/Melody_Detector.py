@@ -1,48 +1,45 @@
-import Variables as var
 import numpy as np
 import time
 import csv_reader as csv
 
 game_melodies = csv.load_csv_for_reading("Audio/Melody_Data.csv") #sets game_melodies to the interpreted values form the csv file storing melodies
 
-melody_when_added = ""
-last_melody_check = 0
-
-def determine_melody():
-  if var.recent_notes and var.note != "-": #if there are any recent notes, and a note is activly being sung
-    local_recent_note = var.recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
-    if len(var.current_melody) > 25: #if the saved melody is getting too long
-       var.current_melody = var.current_melody[1:] #removes the oldest value in the melody
-    if len(var.current_melody) > 0: #if current melody contains any values
-      if var.current_melody[-1][0] == local_recent_note or np.abs(var.recent_notes[-1][1] - var.current_melody[-1][2]) <= 20: #if the note has not changed
-        var.current_melody[-1][1] = time.monotonic() - var.note_start_time #update the time the note has been held
-        var.candidate_note = None
-        var.new_note_start_time = None
+def determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note):
+  if recent_notes and note != "-": #if there are any recent notes, and a note is activly being sung
+    local_recent_note = recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
+    if len(current_melody) > 25: #if the saved melody is getting too long
+       current_melody = current_melody[1:] #removes the oldest value in the melody
+    if len(current_melody) > 0: #if current melody contains any values
+      if current_melody[-1][0] == local_recent_note or np.abs(recent_notes[-1][1] - current_melody[-1][2]) <= 20: #if the note has not changed
+        current_melody[-1][1] = time.monotonic() - note_start_time #update the time the note has been held
+        candidate_note = None
+        new_note_start_time = None
       else:
-        if var.candidate_note is None: #if there is no candidate note
-          if var.prev_frame_note == local_recent_note: #if the previous frames note is the same as the current, ensures note is stable as it lasts for multiple frames
-            var.candidate_note = local_recent_note #set candidate note
-            var.new_note_start_time = time.monotonic() #set the start of this new note
-            return
-          var.prev_frame_note = local_recent_note #runs if there was no prev frame note, sets one
-        if var.candidate_note == local_recent_note: #if the note is consistent
-          if time.monotonic() - var.new_note_start_time > 0.1: #if it has lasted for a reasonable amount of time
-            if len(var.current_melody) > 0:
-              var.current_melody[-1][1] = time.monotonic() - var.note_start_time #updates the notes time held to ensure it is fully accurate
-            melody_copy = list(var.current_melody) #creates a list version of current melody
-            melody_copy.append(np.array([local_recent_note, 0, var.recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
-            var.current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
-            var.note_start_time = time.monotonic()
-            var.new_note_start_time = None #resets new note start time
-            var.candidate_note = None #resets candidate note
+        if candidate_note is None: #if there is no candidate note
+          if prev_frame_note == local_recent_note: #if the previous frames note is the same as the current, ensures note is stable as it lasts for multiple frames
+            candidate_note = local_recent_note #set candidate note
+            new_note_start_time = time.monotonic() #set the start of this new note
+            return current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note 
+          prev_frame_note = local_recent_note #runs if there was no prev frame note, sets one
+        if candidate_note == local_recent_note: #if the note is consistent
+          if time.monotonic() - new_note_start_time > 0.1: #if it has lasted for a reasonable amount of time
+            if len(current_melody) > 0:
+              current_melody[-1][1] = time.monotonic() - note_start_time #updates the notes time held to ensure it is fully accurate
+            melody_copy = list(current_melody) #creates a list version of current melody
+            melody_copy.append(np.array([local_recent_note, 0, recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
+            current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
+            note_start_time = time.monotonic()
+            new_note_start_time = None #resets new note start time
+            candidate_note = None #resets candidate note
         else:
-          var.candidate_note = None #resets candidate note
-          var.new_note_start_time = None #resets new note start time
+          candidate_note = None #resets candidate note
+          new_note_start_time = None #resets new note start time
     else:
-      melody_copy = list(var.current_melody) #creates a list version of current melody
-      melody_copy.append(np.array([local_recent_note, 0, var.recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
-      var.current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
-      var.note_start_time = time.monotonic() #sets note start time
+      melody_copy = list(current_melody) #creates a list version of current melody
+      melody_copy.append(np.array([local_recent_note, 0, recent_notes[-1][1]], dtype = object)) #appends the note array to that local list copy
+      current_melody = np.array(melody_copy, dtype = object) #sets current melody to the array version of the local list
+      note_start_time = time.monotonic() #sets note start time
+  return current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note 
 
 def determine_interval(melody):
   intervals = [] #defines an empty list to store intervals
@@ -56,20 +53,18 @@ def determine_times(melody):
     game_times.append(melody[i][1]) #adds the time value from the input to game_times
   return game_times
 
-def check_melody():
-  global last_melody_check #declares last_melody_check as a global variable
+def check_melody(current_melody, melody_lock, potential_melody, last_melody_check):
   if time.monotonic() - last_melody_check < 0.05: #prevents the loop running too many times, boosting performance slightly
-    return
+    return current_melody, melody_lock, potential_melody, last_melody_check
   last_melody_check = time.monotonic()
-  global melody_when_added #declares melody when added as a global variable
-  if len(var.current_melody) > 1: #if current melody holds sufficient data to be a melody
-    player_intervals = determine_interval(var.current_melody) #finds the intervals between the players notes
+  if len(current_melody) > 1: #if current melody holds sufficient data to be a melody
+    player_intervals = determine_interval(current_melody) #finds the intervals between the players notes
     player_times = [] #empties player tiems
-    for i in range(len(var.current_melody)): #loops through all notes currently in var.current_melody
-      player_times.append(var.current_melody[i][1]) #adds the time to player times
+    for i in range(len(current_melody)): #loops through all notes currently in current_melody
+      player_times.append(current_melody[i][1]) #adds the time to player times
     player_times = list(np.array(player_times) / sum(player_times)) #normalises player times so it is a ratio between the time and total time
     for i, melody in game_melodies.items(): #loops through all melodies in game_melodies
-      if len(var.current_melody) >= len(melody) and not var.melody_lock: #if current melody is long enough to potentially be melody, and there is no melody lock active
+      if len(current_melody) >= len(melody) and not melody_lock: #if current melody is long enough to potentially be melody, and there is no melody lock active
         game_intervals = determine_interval(melody) #finds the intervals between the games notes
         game_times = determine_times(melody) #finds the times for each note
         game_times = list(np.array(game_times) / sum(game_times)) #normalises the times into ratio form
@@ -107,5 +102,6 @@ def check_melody():
               best_wrong = wrong_interval #saves least worng intervals so far to best_wrong
               best_correct = correct_interval #saves the most correct intervals so far to best_correct
         if best_correct >= min_correct_interval and best_time_wrong <= allowed_wrong: #if there are enoguh correct intervals and times
-          var.potential_melody.append(i) #adds the melody ID to potential_melody
-          var.melody_lock = True #activates the melody lock
+          potential_melody.append(i) #adds the melody ID to potential_melody
+          melody_lock = True #activates the melody lock
+  return current_melody, melody_lock, potential_melody, last_melody_check

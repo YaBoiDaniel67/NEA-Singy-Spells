@@ -3,12 +3,9 @@ import threading
 import numpy as np
 from queue import Queue
 import Audio.Hum_Detector
-import Variables as var
 import time
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-last_singing_time = 0
-singing = False
 
 audio_queue = Queue()
 audio = pyaudio.PyAudio()
@@ -23,9 +20,7 @@ def collect_sample():
   data = stream.read(4096) #reads 4096 samples from the stream
   audio_queue.put(data) #puts these samples in a queue
 
-def transform_sample(input_queue):
- global last_singing_time
- global singing
+def transform_sample(input_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing):
  if not input_queue.empty(): #if the queue has sounds samples in it
   sample = input_queue.get() #get the set of samples and remove it from the queue
   sample = np.frombuffer(sample, dtype = np.int16) #converts the sample form binary numbers into decimal
@@ -46,23 +41,24 @@ def transform_sample(input_queue):
     MIDI_note = (12 * np.log2(main_freq / 440.0)) + 69 #determines the MIDI note number of the given frequency. first divide by 440 to get a ratio between the detected frequency and A4
     #log2 to determine how many octaves away the note is from A4, times by 12 to covnert this into semitones away form A4. add 69 as that is the midi note number for A4, and therefore cenetrs it around A4
     MIDI_note = MIDI_note.astype(np.int16) #turns all values into integers so they can be used for indexing
-    Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq) #calls the detect hum subroutine to check whether the sample was hummed
-    var.note = note_names[MIDI_note % 12] #finds the note in letter notation
-    var.recent_notes.append([MIDI_note, main_freq]) #adds the numerical note to the recent note list
-    var.audio_start_time = time.monotonic() #sets audio start time
-    if len(var.recent_notes) > 25:
-      var.recent_notes.pop(0) #if the recent notes list is getting too long, remove the oldest item
+    humming = Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq) #calls the detect hum subroutine to check whether the sample was hummed
+    note = note_names[MIDI_note % 12] #finds the note in letter notation
+    recent_notes.append([MIDI_note, main_freq]) #adds the numerical note to the recent note list
+    audio_start_time = time.monotonic() #sets audio start time
+    if len(recent_notes) > 25:
+      recent_notes.pop(0) #if the recent notes list is getting too long, remove the oldest item
   else:
-    var.note = "-" #sets note to null
-    var.humming = False #sets humming to false
+    note = "-" #sets note to null
+    humming = False #sets humming to false
     if singing == True: #if the user has jsut stopped singing
       last_singing_time = time.monotonic() #gets the time and stores it #figures out time the singing stopped
       singing = False #sets singing to False so this block doesnt run again until more singing has been detected
     if time.monotonic() - last_singing_time > 0.1: #if no singing has been detected for a bit
-      var.current_melody = np.array([], dtype = object) #clears var.current_melody
-      var.melody_lock = False #turns of melody_lock
-    if len(var.recent_notes) > 0: #if var.recnt_notes has stuff in it
-      var.recent_notes.pop(0) #remvoes the oldest item in var.recent_notes
+      current_melody = np.array([], dtype = object) #clears current_melody
+      melody_lock = False #turns of melody_lock
+    if len(recent_notes) > 0: #if recent_notes has stuff in it
+      recent_notes.pop(0) #remvoes the oldest item in recent_notes
+ return note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing
 
 threaded_audio = threading.Thread(target = collect_sample, daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
 threaded_audio.start() #starts the thread

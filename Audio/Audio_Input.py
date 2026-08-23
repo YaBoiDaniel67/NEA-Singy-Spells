@@ -1,5 +1,4 @@
 import pyaudio
-import threading
 import numpy as np
 from queue import Queue
 import Audio.Hum_Detector
@@ -7,16 +6,19 @@ import time
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
-audio_queue = Queue()
-audio = pyaudio.PyAudio()
-stream = audio.open(format = pyaudio.paInt16, #sets the data type as a 16 bit signed binary number
+def open_stream(mic_preference):
+  audio_queue = Queue()
+  audio = pyaudio.PyAudio()
+  stream = audio.open(format = pyaudio.paInt16, #sets the data type as a 16 bit signed binary number
                      channels = 1, #sets the audio type as mono
                      rate = 16000, #sets the sample rate
                      input = True, #defines the stream as detecting sound from the mic
+                     input_device_index = mic_preference, #sets the microphone the stream will read from
                      frames_per_buffer = 4096) #the amount of samples read in a given sample read
+  return audio_queue, stream
 
-def collect_sample():
- while True:
+def collect_sample(audio_queue, stream, stream_open):
+ while stream_open:
   data = stream.read(4096) #reads 4096 samples from the stream
   audio_queue.put(data) #puts these samples in a queue
 
@@ -59,6 +61,3 @@ def transform_sample(input_queue, recent_notes, current_melody, melody_lock, not
     if len(recent_notes) > 0: #if recent_notes has stuff in it
       recent_notes.pop(0) #remvoes the oldest item in recent_notes
  return note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing
-
-threaded_audio = threading.Thread(target = collect_sample, daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
-threaded_audio.start() #starts the thread

@@ -4,8 +4,20 @@ from pygame.locals import *
 def load_textures(half_vertical_res):
   texture_list = {}
 
-  play_button = pygame.image.load("Graphics/Textures/Play_Button.png").convert()
+  play_button = pygame.image.load("Graphics/Textures/Buttons/Play_Button.png").convert()
   texture_list.update({"play_button" : play_button})
+
+  settings_button = pygame.image.load("Graphics/Textures/Buttons/Settings_Button.png").convert()
+  texture_list.update({"settings_button" : settings_button})
+
+  microphone_button = pygame.image.load("Graphics/Textures/Buttons/Microphone_Button.png").convert()
+  texture_list.update({"microphone_button" : microphone_button})
+
+  menu_button_background = pygame.image.load("Graphics/Textures/Buttons/Menu_Button_Background.png").convert()
+  texture_list.update({"menu_button_background" : menu_button_background})
+
+  menu_button_background_selected = pygame.image.load("Graphics/Textures/Buttons/Menu_Button_Background_selected.png").convert()
+  texture_list.update({"menu_button_background_selected" : menu_button_background_selected})
 
   sky = pygame.image.load("Graphics/Textures/sky.png").convert()
   sky = pygame.surfarray.array3d(sky)

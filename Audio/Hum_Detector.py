@@ -3,7 +3,7 @@ import numpy as np
 def detect_hum(frequency_list, magnitude_list, main_frequency):
     if main_frequency == None: #if there is no clear frequency
         humming = False #there is no humming
-        return
+        return humming
     dominant_Mask = (frequency_list >= main_frequency - 30) & (frequency_list <= main_frequency + 30)  #creates a mask for the calculations so they only look at values near the dominant frequency, blocking out background noises
     sum_frequency = np.sum(frequency_list[dominant_Mask] * magnitude_list[dominant_Mask]) #calculates the sum of weighted frequencies
     sum_magnitude = np.sum(magnitude_list[dominant_Mask]) #calculates the sum of magnitudes

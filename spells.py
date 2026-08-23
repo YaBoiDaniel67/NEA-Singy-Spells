@@ -30,7 +30,6 @@ class Fireball(Spell):
       return
 
 class Star(Spell):
-   
    def __init__(self, damage, speed, x, y, ray_angle, texture, type, copy):
       super().__init__(damage, speed, x, y, ray_angle, texture, type)
       self.copy = copy
@@ -39,7 +38,7 @@ class Star(Spell):
    def spell_special(self, active_spells):
       if time.monotonic() - self.spawn_time >= 3 and self.copy == False:
          active_spells.append(Star(10, 0.01, self.x, self.y, self.ray_angle - 0.524, self.texture, "projectile", True)) 
-         self.ray_angle += 0.524
+         active_spells.append(Star(10, 0.01, self.x, self.y, self.ray_angle + 0.524, self.texture, "projectile", True)) 
          self.copy = True
 
 def find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, texture_dict, screenX, potential_melody, active_spells):

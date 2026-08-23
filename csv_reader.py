@@ -10,4 +10,4 @@ def load_csv_for_reading(csv_file_name):
             if i not in values: #if this ID has not yet been added
                 values[i] = [] #creates an empty list at i
             values[i].append([int(j), float(k)]) #adds to this list the note and time it should be held for
-        return(values) #returns values
+        return values #returns values

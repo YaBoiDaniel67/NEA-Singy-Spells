@@ -3,6 +3,7 @@ from pygame.locals import *
 import numpy as np
 import threading
 import pyaudio
+import time
 #imports all librarys needed for this file
 import Raycaster as Raycast
 import Player as player
@@ -71,40 +72,44 @@ main_menu_buttons = []
 start_button = Buttons.Button(screenX, screenY, texture_dict["play_button"], display, 0.5, 4 / 7, 0.1, 0.1, None)
 main_menu_buttons.append(start_button)
 all_buttons.append(start_button)
-main_settings_button = Buttons.Button(screenX, screenY, texture_dict["settings_button"], display, 0.03, 0.05, 0.06, 0.06, None)
+main_settings_button = Buttons.Button(screenX, screenY, texture_dict["settings_button"], display, 0.04, 0.07, 0.06, 0.06, None)
 main_menu_buttons.append(main_settings_button)
 all_buttons.append(main_settings_button)
 
 settings_buttons = []
-mic_options_button = Buttons.Button(screenX, screenY, texture_dict["microphone_button"], display, 0.5, 0.1, 0.3, 0.111, None)
+return_button = Buttons.Button(screenX, screenY, texture_dict["return_button"], display, 0.04, 0.07, 0.06, 0.06, None)
+settings_buttons.append(return_button)
+all_buttons.append(return_button)
+mic_options_button = Buttons.Button(screenX, screenY, texture_dict["microphone_button"], display, 0.5, 0.1, 0.3, 0.111, "Microphone")
 settings_buttons.append(mic_options_button)
 all_buttons.append(mic_options_button)
 
 start_text = Main_Menu_Title_font.render("Singy Spells", True, (0, 0, 0))
 
 run = True
-
 #MAIN PROGRAM LOOP STARTS HERE
 while run: #creates an indefinite loop to keep the game running
     display.fill((0, 0, 0))
     for event in pygame.event.get():
       if event.type == QUIT:
          run = False #if the cross button is pressed, the window closes - allows exit of the program
-      if event.type == VIDEORESIZE:
+      if event.type == VIDEORESIZE: #if the screen changes size
          screenX, screenY = display.get_size() #updates screen size, so that game scales to size of screens
-         for buttons in all_buttons:
+         for buttons in all_buttons: #loops through all buttons that currently exist
+            buttons.resize(screenX, screenY) #calls the resize subroutine, inputting new screenX and Y
+         for buttons in current_mics:
             buttons.resize(screenX, screenY)
-         note_display_font = pygame.font.SysFont(None, int(screenX * 0.05))
-         Main_Menu_Title_font = pygame.font.SysFont(None, (int(screenX * 0.5)))
-      if event.type == KEYDOWN:
-         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-            if game_state == "Play":
-              game_state = "Main Menu"
-              menu_state = "Main"
-            elif menu_state == "settings":
-               menu_state = "Main"
-            elif menu_state == "microphone_select":
-               menu_state = "settings"
+         note_display_font = pygame.font.SysFont(None, int(screenX * 0.05)) #resizes font for displaying note
+         Main_Menu_Title_font = pygame.font.SysFont(None, (int(screenX * 0.5))) #resizes font for menu title
+      if event.type == KEYDOWN: #if any key is activly being pressed
+         if pygame.key.get_pressed()[pygame.K_ESCAPE]: #if the escape key is pressed
+            if game_state == "Play": #if current game state is playing
+              game_state = "Main Menu" #moves to main menud state
+              menu_state = "Main" #sets menu state to main
+            elif menu_state == "settings": #if current menu state is in settings
+               menu_state = "Main" #move to main menu state
+            elif menu_state == "microphone_select": #if menu states is in microphone settings
+               menu_state = "settings" #moves to settings menu state
          elif pygame.key.get_pressed()[pygame.K_f]:
             active_spells.append(spells.Star(10, 0.01, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Star"], "projectile", False))
     match game_state:
@@ -123,14 +128,22 @@ while run: #creates an indefinite loop to keep the game running
              xPos, yPos, player_rotation, active_spells = 1.1, 1.1, 0, []
           elif main_settings_button.check_pressed():
              menu_state = "settings"
+             return_button.last_press = time.monotonic()
         elif menu_state == "settings":
            for buttons in settings_buttons:
               buttons.draw_to_screen()
            if mic_options_button.check_pressed():
               menu_state = "microphone_select"
+              return_button.last_press = time.monotonic()
               current_mics, mic_dict = settings.find_mic_options(screenX, screenY, display, texture_dict)
+           if return_button.check_pressed():
+              menu_state = "Main"
+              main_settings_button.last_press = time.monotonic()
         elif menu_state == "microphone_select":
            mic_preference = settings.display_mic_options(current_mics, mic_dict, mic_preference, texture_dict)
+           return_button.draw_to_screen()
+           if return_button.check_pressed():
+              menu_state = "settings"
      case "Play":
        if stream_open == False:
           stream_open = True

@@ -26,7 +26,7 @@ class Spell():
      self.spawn_time = time.monotonic()
 
 class Fireball(Spell):
-   def spell_special():
+   def spell_special(self, active_spells):
       return
 
 class Star(Spell):

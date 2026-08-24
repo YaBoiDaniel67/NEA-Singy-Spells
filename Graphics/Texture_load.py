@@ -7,6 +7,9 @@ def load_textures(half_vertical_res):
   play_button = pygame.image.load("Graphics/Textures/Buttons/Play_Button.png").convert()
   texture_list.update({"play_button" : play_button})
 
+  return_button = pygame.image.load("Graphics/Textures/Buttons/Return_Button.png").convert()
+  texture_list.update({"return_button" : return_button})
+
   settings_button = pygame.image.load("Graphics/Textures/Buttons/Settings_Button.png").convert()
   texture_list.update({"settings_button" : settings_button})
 

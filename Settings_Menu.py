@@ -1,5 +1,4 @@
 import pyaudio
-import pygame
 import Button as Buttons
 
 def find_mic_options(screenX, screenY, display, texture_dict):
@@ -15,7 +14,7 @@ def find_mic_options(screenX, screenY, display, texture_dict):
     current_mics = []
     count = 0
     for i in range(len(mic_list)):
-        current_mics.append(Buttons.Button(screenX, screenY, texture_dict["menu_button_background"], display, 0.5, 0.05 + (0.1 * count), 0.3, 0.05, mic_list[i]))
+        current_mics.append(Buttons.Button(screenX, screenY, texture_dict["menu_button_background"], display, 0.5, 0.07 + (0.1 * count), 0.3, 0.05, mic_list[i]))
         count += 1
     audio.terminate()
     return current_mics, mic_dict

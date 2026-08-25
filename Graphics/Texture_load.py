@@ -1,5 +1,4 @@
 import pygame
-from pygame.locals import *
 
 def load_textures(half_vertical_res):
   texture_list = {}

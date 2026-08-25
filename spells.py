@@ -81,6 +81,6 @@ def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation
               if distance < depth[j]: #if it closer than the corresponding wall column
                 tex_x = tex_x_array[i] #gets the texture column corresponding to this screen column
                 tex_column = current_object.texture[tex_x, tex_y_array] #calculates all the colour values for this column
-                visible_mask = np.all(tex_column != [1, 0, 0], axis = 1) #creates a mask to ignore the colour pre-defined as clear
+                visible_mask = ~np.all(tex_column == [1, 0, 0], axis = 1) #creates a mask to ignore the colour pre-defined as clear
                 frame[j][row[visible_mask]] = tex_column[visible_mask] #applies the mask and writes the remaining values to frame
    return frame, active_spells #returns frame

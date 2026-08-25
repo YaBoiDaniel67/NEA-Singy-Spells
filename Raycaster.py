@@ -41,7 +41,7 @@ def RayCast(xPos, yPos, frame, world_map, player_rotation, pixels_per_degree, ve
         depth[i] = distance #adds the distance of this column to the corresponding index in depth
         x = xPos + distance * cos #sets new x, adding on scaled distance
         y = yPos + distance * sin #sets new y, adding on scaled distance
-        height = int(vertical_res / (distance * correctional_cos + 1e-6)) #calculates the height of the wall (how many available wall pixels / how far away the wall is * correctional_cos to correct fish eye distortion, add small value to prevent division by 0)
+        height = int(vertical_res/ (distance * correctional_cos + 1e-6)) #calculates the height of the wall (how many available wall pixels / how far away the wall is * correctional_cos to correct fish eye distortion, add small value to prevent division by 0)
         half_height = int(height / 2) #saved to variable to prevent unnecessary calculations
         pix_x = int((x % 1) * 100) #calculates the x coord of the pixel on the bitmap (size 100 x 100)
         if x % 1 > 0.99 or x % 1 < 0.01: #checks if non-int parts of x are near a whole number

@@ -3,7 +3,7 @@ import csv
 def load_csv_for_reading(csv_file_name):
     values = {} #sets values as an empty dictionary
     with open(csv_file_name, "r") as file: #opens the csv file
-        reader = csv.reader(file) #saves reader to a variale
+        reader = csv.reader(file) #saves reader to a variable
         next(reader) #skips the top row as that is not info, just column meanings/names
         for i, j, k in reader:
             i = int(i) #ensures the melody_ID is an int

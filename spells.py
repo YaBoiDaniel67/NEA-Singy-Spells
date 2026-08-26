@@ -52,6 +52,32 @@ def find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, t
                      active_spells.append(Star(10, 0.01, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Star"], "projectile", False)) #adds an instance of the Star class to var.spells
              potential_melody.pop() #removes the value from var.potential_melody
     return active_spells, potential_melody
+
+def sort_spell_list(playerX, playerY, active_spells):
+   if len(active_spells) <= 1:
+      return active_spells
+   left_list = active_spells[:len(active_spells) // 2]
+   right_list = active_spells[len(active_spells) // 2:]
+   sorted_left = sort_spell_list(playerX, playerY, left_list)
+   sorted_right = sort_spell_list(playerX, playerY, right_list)
+
+   sorted_spells = []
+   left_count, right_count= 0, 0
+   while left_count < len(sorted_left) and right_count < len(sorted_right):
+      if np.sqrt((sorted_left[left_count].x - playerX) ** 2 + (sorted_left[left_count].y - playerY) ** 2) >= np.sqrt((sorted_right[right_count].x - playerX) ** 2 + (sorted_right[right_count].y - playerY) ** 2):
+         sorted_spells.append(sorted_left[left_count])
+         left_count += 1
+      else:
+         sorted_spells.append(sorted_right[right_count])
+         right_count += 1
+   while left_count < len(sorted_left):
+       sorted_spells.append(sorted_left[left_count])
+       left_count +=1
+   while right_count < len(sorted_right):
+       sorted_spells.append(sorted_right[right_count])
+       right_count += 1
+   return sorted_spells
+   
                
 
 def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells):

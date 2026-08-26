@@ -80,7 +80,7 @@ settings_buttons = []
 return_button = Buttons.Button(screenX, screenY, texture_dict["return_button"], display, 0.04, 0.07, 0.06, 0.06, None)
 settings_buttons.append(return_button)
 all_buttons.append(return_button)
-mic_options_button = Buttons.Button(screenX, screenY, texture_dict["microphone_button"], display, 0.5, 0.1, 0.3, 0.111, "Microphone")
+mic_options_button = Buttons.Button(screenX, screenY, texture_dict["microphone_button"], display, 0.5, 0.125, 0.3, 0.111, "Microphone")
 settings_buttons.append(mic_options_button)
 all_buttons.append(mic_options_button)
 
@@ -159,6 +159,7 @@ while run: #creates an indefinite loop to keep the game running
        active_spells, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, texture_dict, screenX, potential_melody, active_spells)
        for spell in active_spells:
          frame, active_spells = spells.draw_on_screen(frame, spell, world_map, xPos, yPos, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells)
+       active_spells = spells.sort_spell_list(xPos, yPos, active_spells)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen
     pygame.display.update() #updates the display

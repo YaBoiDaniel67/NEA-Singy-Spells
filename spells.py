@@ -37,9 +37,9 @@ class Star(Spell):
 
    def spell_special(self, active_spells):
       if time.monotonic() - self.spawn_time >= 3 and self.copy == False:
-         active_spells.append(Star(10, 0.01, self.x, self.y, self.ray_angle - 0.524, self.texture, "projectile", True)) 
-         active_spells.append(Star(10, 0.01, self.x, self.y, self.ray_angle + 0.524, self.texture, "projectile", True)) 
-         self.copy = True
+         active_spells.append(Star(10, 0.01, self.x, self.y, self.ray_angle - 0.524, self.texture, "projectile", True)) #sends of a star slightly left of the current one
+         active_spells.append(Star(10, 0.01, self.x, self.y, self.ray_angle + 0.524, self.texture, "projectile", True)) #sends of a star slightly right of the current one
+         self.copy = True #sets copy to true so it doesnt spawn any more copies
 
 def find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, texture_dict, screenX, potential_melody, active_spells):
     if len(potential_melody) > 0: #if the players has sung a melody
@@ -47,35 +47,35 @@ def find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, t
           if spell["melody_ID"] in potential_melody: #if that spell is the one the player sang
              match spell_name: #case statement to match the spell name to its spell
                    case "Fireball":
-                     active_spells.append(Fireball(20, 0.01, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Fireball"], "projectile")) #adds an instance of the fireball class to var.spells
+                     active_spells.append(Fireball(20, 0.1, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Fireball"], "projectile")) #adds an instance of the fireball class to var.spells
                    case "Star":
                      active_spells.append(Star(10, 0.01, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Star"], "projectile", False)) #adds an instance of the Star class to var.spells
              potential_melody.pop() #removes the value from var.potential_melody
     return active_spells, potential_melody
 
 def sort_spell_list(playerX, playerY, active_spells):
-   if len(active_spells) <= 1:
-      return active_spells
-   left_list = active_spells[:len(active_spells) // 2]
-   right_list = active_spells[len(active_spells) // 2:]
-   sorted_left = sort_spell_list(playerX, playerY, left_list)
-   sorted_right = sort_spell_list(playerX, playerY, right_list)
+   if len(active_spells) <= 1: #if the list it split down into one element, or the original input had 1 element
+      return active_spells #returns this version of the list
+   left_list = active_spells[:len(active_spells) // 2] #creates a sublist that contains the elft half of list elements and the middle value
+   right_list = active_spells[len(active_spells) // 2:] #creates a sublist that contains the right half of list elements
+   sorted_left = sort_spell_list(playerX, playerY, left_list) #calls the subroutine on this split up left list
+   sorted_right = sort_spell_list(playerX, playerY, right_list) #calls the subroutine on this split up right list
 
    sorted_spells = []
    left_count, right_count= 0, 0
-   while left_count < len(sorted_left) and right_count < len(sorted_right):
-      if np.sqrt((sorted_left[left_count].x - playerX) ** 2 + (sorted_left[left_count].y - playerY) ** 2) >= np.sqrt((sorted_right[right_count].x - playerX) ** 2 + (sorted_right[right_count].y - playerY) ** 2):
-         sorted_spells.append(sorted_left[left_count])
-         left_count += 1
+   while left_count < len(sorted_left) and right_count < len(sorted_right): #while there are still values to compare in both lists
+      if np.sqrt((sorted_left[left_count].x - playerX) ** 2 + (sorted_left[left_count].y - playerY) ** 2) >= np.sqrt((sorted_right[right_count].x - playerX) ** 2 + (sorted_right[right_count].y - playerY) ** 2): #if the item at index left count in sorted left is closer to the plyaer than the one in sorted right
+         sorted_spells.append(sorted_left[left_count]) #adds that item to sorted spell
+         left_count += 1 #adds 1 to left count so next index is checked next run
       else:
-         sorted_spells.append(sorted_right[right_count])
-         right_count += 1
-   while left_count < len(sorted_left):
-       sorted_spells.append(sorted_left[left_count])
-       left_count +=1
-   while right_count < len(sorted_right):
-       sorted_spells.append(sorted_right[right_count])
-       right_count += 1
+         sorted_spells.append(sorted_right[right_count]) #adds the item in sorted right at index right count to sorted spells
+         right_count += 1 #adds 1 to the right index so next index is checked next run
+   while left_count < len(sorted_left): #runs until all of sorted left has been checked
+       sorted_spells.append(sorted_left[left_count]) #adds the item in sorted left at index left count to sorted spells
+       left_count +=1 #adds 1 to the left index so next index is checked next run
+   while right_count < len(sorted_right): #runs until all of sorted right has been checked
+       sorted_spells.append(sorted_right[right_count]) #adds the item in sorted right at index right count to sorted spells
+       right_count += 1 #adds 1 to the right index so next index is checked next run
    return sorted_spells
    
                

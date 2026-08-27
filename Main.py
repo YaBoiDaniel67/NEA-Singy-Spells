@@ -151,9 +151,9 @@ while run: #creates an indefinite loop to keep the game running
           threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
           threaded_audio.start() #starts the thread
        frame, depth = Raycast.RayCast(xPos, yPos, frame, world_map, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
-       xPos, yPos, player_rotation = player.Movement(xPos, yPos, world_map, player_rotation, pygame.key.get_pressed(), humming) #calls the movement subroutine
+       xPos, yPos, player_rotation = player.Movement(xPos, yPos, world_map, player_rotation, pygame.key.get_pressed()) #calls the movement subroutine
        note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing = audio.transform_sample(audio_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing)
-       note_text = note_display_font.render(f"current note: {note}", True, (0, 0, 0))
+       note_text = note_display_font.render(f"current note: {note}, {humming}", True, (0, 0, 0))
        current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note  = melody.determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note)
        current_melody, melody_lock, potential_melody, last_melody_check = melody.check_melody(current_melody, melody_lock, potential_melody, last_melody_check)
        active_spells, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, texture_dict, screenX, potential_melody, active_spells)

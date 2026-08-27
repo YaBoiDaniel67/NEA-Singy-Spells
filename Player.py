@@ -1,13 +1,13 @@
 import pygame
 import numpy as np
 
-def Movement(xPos, yPos, world_map, player_rotation, keys, humming):
+def Movement(xPos, yPos, world_map, player_rotation, keys):
     x, y = xPos, yPos
     if keys[ord('a')]: #is key at index ord('a') currently being held down
         player_rotation -= 0.05
     if keys[ord('d')]: #is key at index ord('d') currently being held down 
         player_rotation += 0.05
-    if keys[ord('w')] or humming == True: #is key at index ord('w') currently being held down
+    if keys[ord('w')]: #is key at index ord('w') currently being held down
         x, y = x + np.cos(player_rotation) * 0.05, y + np.sin(player_rotation) * 0.05
     if keys[ord('s')]: #is key at index ord('s') currently being held down
         x, y = x - np.cos(player_rotation) * 0.05, y - np.sin(player_rotation) * 0.05

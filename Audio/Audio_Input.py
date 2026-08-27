@@ -19,6 +19,7 @@ def open_stream(mic_preference):
 
 def collect_sample(audio_queue, stream, stream_open):
  while stream_open:
+  print("thread running")
   data = stream.read(4096) #reads 4096 samples from the stream
   audio_queue.put(data) #puts these samples in a queue
 

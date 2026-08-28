@@ -27,11 +27,11 @@ vertical_res = 200 #vertical resolution
 half_vertical_res = int(vertical_res / 2) #half the vertical resolution
 pixels_per_degree = horizontal_res/60 #scale factor - FOV is 60deg
 depth = np.zeros(horizontal_res)
-world_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-             [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-             [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
-             [1, 0, 0, 0, 1],
-             [1, 1, 1, 1, 1]]
+world_map = np.random.choice([0], (10, 10))
+world_map[0, :] = 1
+world_map[-1, :] = 1
+world_map[:, 0] = 1
+world_map[:, -1] = 1
 
 pygame.font.init()
 note_display_font = pygame.font.SysFont(None, int(screenX * 0.05))
@@ -113,7 +113,7 @@ while run: #creates an indefinite loop to keep the game running
             elif menu_state == "microphone_select": #if menu states is in microphone settings
                menu_state = "settings" #moves to settings menu state
          elif pygame.key.get_pressed()[pygame.K_f]:
-            active_spells.append(spells.Star(10, 0.01, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Star"], "projectile", False))
+            active_spells.append(spells.Invis_Projectile(10, 0.05, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 10, spells.ground_cactus, texture_dict["cactus"], 1))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
         if stream_open == True: #checks if stream is open

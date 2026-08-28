@@ -41,6 +41,14 @@ def load_textures(half_vertical_res):
   Star = pygame.surfarray.array3d(Star)
   texture_list.update({"Star" : Star})
 
+  invis_texture = pygame.image.load("Graphics/Textures/Invis_texture.png").convert()
+  invis_texture = pygame.surfarray.array3d(invis_texture)
+  texture_list.update({"Invis_texture" : invis_texture})
+
+  cactus = pygame.image.load("Graphics/Textures/Cactus.png").convert()
+  cactus = pygame.surfarray.array3d(cactus)
+  texture_list.update({"cactus" : cactus})
+  
   return texture_list
 
 #converts the textures into scaled images, and then surfarray.3darray converts the image into a 3d numpy array of dimensions width, height, and a list of the pixels 3 RGB values

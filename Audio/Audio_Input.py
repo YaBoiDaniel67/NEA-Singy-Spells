@@ -5,6 +5,7 @@ import Audio.Hum_Detector
 import time
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+#              0     1    2    3     4    5     6     7    8    9    10    11
 
 def open_stream(mic_preference):
   audio_queue = Queue()
@@ -19,7 +20,7 @@ def open_stream(mic_preference):
 
 def collect_sample(audio_queue, stream, stream_open):
  while stream_open:
-  print("thread running")
+ # print("thread running")
   data = stream.read(4096) #reads 4096 samples from the stream
   audio_queue.put(data) #puts these samples in a queue
 
@@ -32,7 +33,7 @@ def transform_sample(input_queue, recent_notes, current_melody, melody_lock, not
     sample_magnitude = np.fft.rfft(sample) #applies an fft algorithm to the data and collects the post-fft complex numbers
     sample_magnitude = np.abs(sample_magnitude) #calculates the magnitude of all these complex numbers, giving the magnitude of that specific sample
     sample_frequency = np.fft.rfftfreq(len(sample), 1.0 / 16000) #applies an fft algorithm to the data to collect their frequencies
-    valid_buffer = (sample_frequency > 150) & (sample_frequency < 800) #creates a buffer so that low and high frequencies are ignored, preventing background frequencies from intefering
+    valid_buffer = (sample_frequency > 150) & (sample_frequency < 3000) #creates a buffer so that low and high frequencies are ignored, preventing background frequencies from intefering
     valid_sample_magnitude = sample_magnitude[valid_buffer] #applies the buffer to sample_magnitude
     valid_sample_frequency = sample_frequency[valid_buffer] #applies the buffer to sample frequency
     frequency_peaks = valid_sample_frequency[valid_sample_magnitude > 30] #saves frequency values that have a corresponding magnitude greater than 30

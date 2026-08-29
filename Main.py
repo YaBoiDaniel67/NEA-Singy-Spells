@@ -113,7 +113,7 @@ while run: #creates an indefinite loop to keep the game running
             elif menu_state == "microphone_select": #if menu states is in microphone settings
                menu_state = "settings" #moves to settings menu state
          elif pygame.key.get_pressed()[pygame.K_f]:
-            active_spells.append(spells.Invis_Projectile(10, 0.05, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 10, spells.ground_cactus, texture_dict["cactus"], 1))
+            active_spells.append(spells.Invis_Projectile(10, 0.05, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
         if stream_open == True: #checks if stream is open

@@ -56,6 +56,7 @@ def determine_times(melody):
 def check_melody(current_melody, melody_lock, potential_melody, last_melody_check):
   if time.monotonic() - last_melody_check < 0.05: #prevents the loop running too many times, boosting performance slightly
     return current_melody, melody_lock, potential_melody, last_melody_check
+  print(current_melody)
   last_melody_check = time.monotonic() #resets last melody check 
   if len(current_melody) > 1: #if current melody holds sufficient data to be a melody
     player_intervals = determine_interval(current_melody) #finds the intervals between the players notes

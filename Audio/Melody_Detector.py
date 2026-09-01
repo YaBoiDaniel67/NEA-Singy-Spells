@@ -6,7 +6,7 @@ game_melodies = csv.load_csv_for_reading("Audio/Melody_Data.csv") #sets game_mel
 
 def determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note):
   if recent_notes and note != "-": #if there are any recent notes, and a note is activly being sung
-    local_recent_note = recent_notes[-1][0] % 12 #takes the most recent detcted note, and scales it down to 1 octave
+    local_recent_note = recent_notes[-1][0] % 12 #takes the most recent detected note, and scales it down to 1 octave
     if len(current_melody) > 25: #if the saved melody is getting too long
        current_melody = current_melody[1:] #removes the oldest value in the melody
     if len(current_melody) > 0: #if current melody contains any values
@@ -56,7 +56,6 @@ def determine_times(melody):
 def check_melody(current_melody, melody_lock, potential_melody, last_melody_check):
   if time.monotonic() - last_melody_check < 0.05: #prevents the loop running too many times, boosting performance slightly
     return current_melody, melody_lock, potential_melody, last_melody_check
-  print(current_melody)
   last_melody_check = time.monotonic() #resets last melody check 
   if len(current_melody) > 1: #if current melody holds sufficient data to be a melody
     player_intervals = determine_interval(current_melody) #finds the intervals between the players notes

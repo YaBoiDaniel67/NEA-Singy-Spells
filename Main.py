@@ -105,12 +105,13 @@ while run: #creates an indefinite loop to keep the game running
          Main_Menu_Title_font = pygame.font.SysFont(None, (int(screenX * 0.5))) #resizes font for menu title
       if event.type == KEYDOWN: #if any key is activly being pressed
          if pygame.key.get_pressed()[pygame.K_ESCAPE]: #if the escape key is pressed
-            if game_state == "Play": #if current game state is playing
+            match game_state:
+             case "Play": #if current game state is playing
               game_state = "Main Menu" #moves to main menud state
               menu_state = "Main" #sets menu state to main
-            elif menu_state == "settings": #if current menu state is in settings
+             case "settings": #if current menu state is in settings
                menu_state = "Main" #move to main menu state
-            elif menu_state == "microphone_select": #if menu states is in microphone settings
+             case "microphone_select": #if menu states is in microphone settings
                menu_state = "settings" #moves to settings menu state
          elif pygame.key.get_pressed()[pygame.K_f]:
             active_spells.append(spells.Invis_Projectile(10, 0.05, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))

@@ -41,7 +41,6 @@ clock = pygame.time.Clock()
 frame = np.random.uniform(0, 1, (horizontal_res, vertical_res, 3)) #frame is numpy array as it is faster to edit and write data to
 
 texture_dict = textures.load_textures(half_vertical_res)
-
 last_singing_time = 0
 singing = False
 

@@ -18,9 +18,8 @@ import Settings_Menu as settings
 screenX, screenY = 320, 180 #initial window size
 display = pygame.display.set_mode((screenX, screenY), pygame.RESIZABLE)
 game_state = "Main Menu"
+Player = player.Player()
 
-player_rotation = 0 #players rotation
-xPos, yPos = (1.1, 1.1) #players coords
 currently_turning = False
 horizontal_res = 120 #horizontal resolution
 vertical_res = 200 #vertical resolution
@@ -51,7 +50,6 @@ current_melody = np.array([], dtype = object) #what melody is the player current
 potential_melody = [] #what melodies the algorithm has detected the player singing
 melody_lock = False
 audio_start_time = 0
-melody_list = ["Happy Birthday", "Twinkle Twinkle Little Star"] #list of current melodies in the game
 last_melody_check = 0
 note_start_time = 0
 new_note_start_time = None
@@ -87,7 +85,6 @@ all_buttons.append(mic_options_button)
 start_text = Main_Menu_Title_font.render("Singy Spells", True, (0, 0, 0))
 
 run = True
-Player = player.Player()
 #MAIN PROGRAM LOOP STARTS HERE
 while run: #creates an indefinite loop to keep the game running
     display.fill((0, 0, 0))
@@ -113,13 +110,13 @@ while run: #creates an indefinite loop to keep the game running
              case "microphone_select": #if menu states is in microphone settings
                menu_state = "settings" #moves to settings menu state
          elif pygame.key.get_pressed()[pygame.K_f]:
-            active_spells.append(spells.Invis_Projectile(10, 0.05, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
+            active_spells.append(spells.Invis_Projectile(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
         if stream_open[0] == True: #checks if stream is open
            stream_open[0] = False #closes the stream
-        frame, depth = Raycast.RayCast(2, 2, frame, world_map, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
-        player_rotation += 0.001 #adds a little bit to player rotation, so the screen slowely rotates
+        frame, depth = Raycast.RayCast(2, 2, frame, world_map, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
+        Player.rotation += 0.001 #adds a little bit to player rotation, so the screen slowely rotates
         display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen 
         match menu_state:
          case "Main": #if the menu state is main
@@ -128,7 +125,7 @@ while run: #creates an indefinite loop to keep the game running
              button.draw_to_screen() #draws all main menu buttons to screen
           if start_button.check_pressed(): #checks if the start button got pressed
              game_state = "Play" #sets game state to play
-             xPos, yPos, player_rotation, active_spells = 1.1, 1.1, 0, [] #initalises variable for gameplay
+             Player.xPos, Player.yPos, Player.rotation, active_spells = 1.1, 1.1, 0, [] #initalises variable for gameplay
           elif main_settings_button.check_pressed(): #if the settings button got pressed
              menu_state = "settings" #sets the menu state to settings
              return_button.last_press = time.monotonic() #sets the returns button last press time so it doesnt accidently get pressed when clicking on settings
@@ -153,16 +150,16 @@ while run: #creates an indefinite loop to keep the game running
           audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
           threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
           threaded_audio.start() #starts the thread
-       frame, depth = Raycast.RayCast(xPos, yPos, frame, world_map, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
-       xPos, yPos, player_rotation, currently_turning = Player.Movement(xPos, yPos, world_map, player_rotation, pygame.key.get_pressed(), currently_turning) #calls the movement subroutine
+       frame, depth = Raycast.RayCast(Player.xPos, Player.yPos, frame, world_map, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
+       currently_turning = Player.Movement(world_map, pygame.key.get_pressed(), currently_turning) #calls the movement subroutine
        note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing = audio.transform_sample(audio_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing)
        note_text = note_display_font.render(f"current note: {note}, {humming}", True, (0, 0, 0))
        current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note  = melody.determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note)
        current_melody, melody_lock, potential_melody, last_melody_check = melody.check_melody(current_melody, melody_lock, potential_melody, last_melody_check)
-       active_spells, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, texture_dict, screenX, potential_melody, active_spells)
+       active_spells, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player.rotation, Player.xPos, Player.yPos, texture_dict, screenX, potential_melody, active_spells)
        for spell in active_spells:
-         frame, active_spells = spells.draw_on_screen(frame, spell, world_map, xPos, yPos, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells)
-       active_spells = spells.sort_spell_list(xPos, yPos, active_spells)
+         frame, active_spells = spells.draw_on_screen(frame, spell, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells)
+       active_spells = spells.sort_spell_list(Player.xPos, Player.yPos, active_spells)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen
     pygame.display.update() #updates the display

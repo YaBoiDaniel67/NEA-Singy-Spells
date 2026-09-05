@@ -127,7 +127,7 @@ def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation
           distance = np.sqrt((current_object.x - xPos) ** 2 + (current_object.y - yPos)** 2) #calculates the distance of the projectile from the player
           height = int((vertical_res / (distance * np.cos(no_rotation_angle) + 1e-6)) * current_object.size) #calculates the height of the sprite on screen
           min(height, vertical_res)
-          width = int((horizontal_res / (distance * np.cos(no_rotation_angle) + 1e-6)) * current_object.size) #gets the width
+          width = int((horizontal_res / (distance * np.cos(no_rotation_angle) + 1e-6)) * current_object.size) #gets the width of the sprite on screen
           min(width, horizontal_res)
           top, bottom = max(0, half_vertical_res - height // 2), min(vertical_res, half_vertical_res + height // 2) #determines the top and bottom rows of the sprite in relations to the screen
           left, right = screen_column - width // 2, screen_column + width // 2 #determiens the left and right columns of the sprite in relation to the screen

@@ -64,7 +64,7 @@ audio_instance = pyaudio.PyAudio()
 mic_preference = audio_instance.get_default_input_device_info()["index"]
 audio_instance.terminate()
 stream = None
-stream_open = True
+stream_open = [True]
 
 menu_state = "Main"
 all_buttons = []
@@ -116,8 +116,8 @@ while run: #creates an indefinite loop to keep the game running
             active_spells.append(spells.Invis_Projectile(10, 0.05, xPos, yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
-        if stream_open == True: #checks if stream is open
-           stream_open = False #closes the stream
+        if stream_open[0] == True: #checks if stream is open
+           stream_open[0] = False #closes the stream
         frame, depth = Raycast.RayCast(2, 2, frame, world_map, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
         player_rotation += 0.001 #adds a little bit to player rotation, so the screen slowely rotates
         display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen 
@@ -148,8 +148,8 @@ while run: #creates an indefinite loop to keep the game running
            if return_button.check_pressed(): #if the return button got pressed
               menu_state = "settings" #sets menu state to settings
      case "Play":
-       if stream_open == False: #if the stream is closed
-          stream_open = True #allows the stream to open
+       if stream_open[0] == False: #if the stream is closed
+          stream_open[0] = True #allows the stream to open
           audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
           threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
           threaded_audio.start() #starts the thread

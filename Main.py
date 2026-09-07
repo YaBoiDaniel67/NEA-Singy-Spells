@@ -95,8 +95,8 @@ while run: #creates an indefinite loop to keep the game running
          screenX, screenY = display.get_size() #updates screen size, so that game scales to size of screens
          for buttons in all_buttons: #loops through all buttons that currently exist
             buttons.resize(screenX, screenY) #calls the resize subroutine, inputting new screenX and Y
-         for buttons in current_mics:
-            buttons.resize(screenX, screenY)
+         for buttons in current_mics: #loops through all the current mic buttons
+            buttons.resize(screenX, screenY) #resizes them
          note_display_font = pygame.font.SysFont(None, int(screenX * 0.05)) #resizes font for displaying note
          Main_Menu_Title_font = pygame.font.SysFont(None, (int(screenX * 0.5))) #resizes font for menu title
       if event.type == KEYDOWN: #if any key is activly being pressed
@@ -110,12 +110,16 @@ while run: #creates an indefinite loop to keep the game running
              case "microphone_select": #if menu states is in microphone settings
                menu_state = "settings" #moves to settings menu state
          elif pygame.key.get_pressed()[pygame.K_f]:
-            active_spells.append(spells.Invis_Projectile(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
+            active_spells.append(spells.Invis_Projectile(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
+         elif pygame.key.get_pressed()[pygame.K_g]:
+           active_spells.append(spells.Star(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Star"], "projectile", 0.5, False))
+         elif pygame.key.get_pressed()[pygame.K_h]:
+           active_spells.append(spells.Fireball(20, 0.1, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Fireball"], "projectile", 1))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
         if stream_open[0] == True: #checks if stream is open
            stream_open[0] = False #closes the stream
-        frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
+        frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"], fov) #calls the raycast subroutine
         Player.rotation += 0.001 #adds a little bit to player rotation, so the screen slowely rotates
         display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen 
         match menu_state:
@@ -150,15 +154,15 @@ while run: #creates an indefinite loop to keep the game running
           audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
           threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
           threaded_audio.start() #starts the thread
-       frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
+       frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"], fov) #calls the raycast subroutine
        Player.Movement(world_map, pygame.key.get_pressed()) #calls the movement subroutine
        note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing = audio.transform_sample(audio_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing)
        note_text = note_display_font.render(f"current note: {note}, {humming}", True, (0, 0, 0))
        current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note  = melody.determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note)
        current_melody, melody_lock, potential_melody, last_melody_check = melody.check_melody(current_melody, melody_lock, potential_melody, last_melody_check)
-       active_spells, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player.rotation, Player.xPos, Player.yPos, texture_dict, screenX, potential_melody, active_spells)
+       active_spells, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player, texture_dict, screenX, potential_melody, active_spells, fov)
        for spell in active_spells:
-         frame, active_spells = spells.draw_on_screen(frame, spell, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells)
+         frame, active_spells = spells.draw_on_screen(frame, spell, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells, fov)
        active_spells = spells.sort_spell_list(Player.xPos, Player.yPos, active_spells)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen

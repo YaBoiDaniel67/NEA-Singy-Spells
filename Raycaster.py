@@ -1,16 +1,16 @@
 import numpy as np
 
-def RayCast(player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, sky, wall, depth, floor):
+def RayCast(player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, sky, wall, depth, floor, fov):
     for i in range(horizontal_res): #loops through the amount of pixels horizontally across the screen
         x, y = player.xPos, player.yPos #creates a local copy of the player x and y coords
-        player_redundant_ray_angle = np.deg2rad((i / pixels_per_degree) - 30) #calculates the angle for the current ray
+        player_redundant_ray_angle = np.deg2rad((i / pixels_per_degree) - (fov / 2)) #calculates the angle for the current ray
         ray_angle = player.rotation + player_redundant_ray_angle #calculates the angle of each ray + the players current rotation to get a resultant angle of rotation for the ray
         sin, cos, correctional_cos = np.sin(ray_angle), np.cos(ray_angle), np.cos(player_redundant_ray_angle) #saves the sin and cosine values of ray_angle so they dont have be constatnly recalculated, correctional_cos is used to correct the fish-eye distortion caused by raycasting
         if abs(sin) < 1e-6:
             sin = 1e-6 #prevents any divisions by 0 that could occur
         elif abs(cos) < 1e-6:
             cos = 1e-6 #prevents any divisions by 0 that could occur
-        frame[i][:] = sky[int((np.rad2deg(player.rotation) + (i / pixels_per_degree) - 30) * (sky.shape[0] / 360)) % sky.shape[0]][:] #calculates how far round in deg (0 - 359) this sky column is, maps this frame index to a given pixel column in the sky bitmap
+        frame[i][:] = sky[int((np.rad2deg(player.rotation) + (i / pixels_per_degree) - (fov / 2)) * (sky.shape[0] / 360)) % sky.shape[0]][:] #calculates how far round in deg (0 - 359) this sky column is, maps this frame index to a given pixel column in the sky bitmap
         mapX, mapY = int(x), int(y) #saves the int of x and y to prevent recalculation, increasing efficiency
         tile_dist_x, tile_dist_y = abs(1 / cos), abs(1 / sin) #calculates how much distance a ray must cross to travel over one tile of space in x or y
         if cos > 0: #if ray is to the right

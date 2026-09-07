@@ -10,9 +10,9 @@ spells = {"Fireball": { #creates a dict that contain all spells and their corres
              "melody_ID": 2}
 }
 
-def get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX):
+def get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX, fov):
    mouseX, mouseY = pygame.mouse.get_pos() #gets the mouse X coord on screen
-   redundant_ray_angle = np.deg2rad((((mouseX / screenX) * horizontal_res) / pixels_per_degree) - 30) #calculates the angle of the ray the mouse is pointing on
+   redundant_ray_angle = np.deg2rad((((mouseX / screenX) * horizontal_res) / pixels_per_degree) - fov/2) #calculates the angle of the ray the mouse is pointing on
    ray_angle = player_rotation + redundant_ray_angle #adds player rotation to this ray
    return ray_angle #returns the ray angle
 
@@ -69,17 +69,17 @@ class ground_cactus(Spell):
       return
 
 
-def find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, texture_dict, screenX, potential_melody, active_spells):
+def find_spell(horizontal_res, pixels_per_degree, player, texture_dict, screenX, potential_melody, active_spells, fov):
     if len(potential_melody) > 0: #if the players has sung a melody
       for spell_name, spell in spells.items(): #loops through all the spells
           if spell["melody_ID"] in potential_melody: #if that spell is the one the player sang
              match spell_name: #case statement to match the spell name to its spell
                    case "Fireball":
-                     active_spells.append(Fireball(20, 0.1, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Fireball"], "projectile", 1)) #adds an instance of the fireball class to var.spells
+                     active_spells.append(Fireball(20, 0.1, player.xPos, player.yPos, get_ray_angle(horizontal_res, pixels_per_degree, player.rotation, screenX, fov), texture_dict["Fireball"], "projectile", 1)) #adds an instance of the fireball class to var.spells
                    case "Star":
-                     active_spells.append(Star(10, 0.05, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Star"], "projectile", 0.5, False)) #adds an instance of the Star class to var.spells
+                     active_spells.append(Star(10, 0.05, player.xPos, player.yPos, get_ray_angle(horizontal_res, pixels_per_degree, player.rotation, screenX, fov), texture_dict["Star"], "projectile", 0.5, False)) #adds an instance of the Star class to var.spells
                    case "Ground_cacti":
-                     active_spells.append(Invis_Projectile(10, 0.05, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, ground_cactus, texture_dict["cactus"], 0.5))
+                     active_spells.append(Invis_Projectile(10, 0.05, player.xPos, player.yPos, get_ray_angle(horizontal_res, pixels_per_degree, player.rotation, screenX, fov), texture_dict["Invis_texture"], "projectile", 0.5, 10, ground_cactus, texture_dict["cactus"], 0.5))
              potential_melody.pop() #removes the value from var.potential_melody
     return active_spells, potential_melody
 
@@ -110,7 +110,7 @@ def sort_spell_list(playerX, playerY, active_spells):
    
                
 
-def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells):
+def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells, fov):
    current_object.spell_special(active_spells)
    match current_object.type:
       case "projectile":
@@ -121,7 +121,7 @@ def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation
         angle_to_projectile_from_player = np.arctan2(current_object.y - yPos, current_object.x - xPos) #calculates the angle from the player to the projectile
         no_rotation_angle = angle_to_projectile_from_player - player_rotation #changes the angle so it is relative to where the player is facing
         no_rotation_angle = (no_rotation_angle + np.pi) % (2 * np.pi) - np.pi #shifts the angle between -pi and pi
-        screen_column = int((np.rad2deg(no_rotation_angle) + 30) * pixels_per_degree) #calculates the column where the sprite centre should appear
+        screen_column = int((np.rad2deg(no_rotation_angle) + fov/2) * pixels_per_degree) #calculates the column where the sprite centre should appear
         if 0 - current_object.texture.shape[0] < screen_column - (current_object.texture.shape[0] / 2) < horizontal_res: #if its on-screen
           distance = np.sqrt((current_object.x - xPos) ** 2 + (current_object.y - yPos)** 2) #calculates the distance of the projectile from the player
           height = int((vertical_res / (distance * np.cos(no_rotation_angle) + 1e-6)) * current_object.size) #calculates the height of the sprite on screen
@@ -147,7 +147,7 @@ def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation
          angle_to_object_from_player = np.arctan2(current_object.y - yPos, current_object.x - xPos) #calculates the angle from the player to the object
          no_rotation_angle = angle_to_object_from_player - player_rotation #changes the angle so it is relative to where the player is facing
          no_rotation_angle = (no_rotation_angle + np.pi) % (2 * np.pi) - np.pi #shifts the angle between -pi and pi
-         screen_column = int((np.rad2deg(no_rotation_angle) + 30) * pixels_per_degree) #calculates the column where the sprite centre should appear
+         screen_column = int((np.rad2deg(no_rotation_angle) + fov/2) * pixels_per_degree) #calculates the column where the sprite centre should appear
          distance = np.sqrt((current_object.x - xPos) ** 2 + (current_object.y - yPos)** 2) #calculates the distance of the object from the player
          height = int((vertical_res / (distance * np.cos(no_rotation_angle) + 1e-6)) * current_object.size) #calculates the height of the sprite on screen
          height = min(height, vertical_res) #clamps the height so it doesnt include of-screen bits

@@ -7,8 +7,7 @@ spells = {"Fireball": { #creates a dict that contain all spells and their corres
           "Star": {
              "melody_ID": 1},
           "Ground_cacti": {
-             "melody_ID": 2
-          }
+             "melody_ID": 2}
 }
 
 def get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX):
@@ -80,7 +79,7 @@ def find_spell(horizontal_res, pixels_per_degree, player_rotation, xPos, yPos, t
                    case "Star":
                      active_spells.append(Star(10, 0.05, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Star"], "projectile", 0.5, False)) #adds an instance of the Star class to var.spells
                    case "Ground_cacti":
-                     active_spells.append(Invis_Projectile(10, 0.05, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 5, ground_cactus, texture_dict["cactus"], 0.5))
+                     active_spells.append(Invis_Projectile(10, 0.05, xPos, yPos, get_ray_angle(horizontal_res, pixels_per_degree, player_rotation, screenX), texture_dict["Invis_texture"], "projectile", 0.5, 10, ground_cactus, texture_dict["cactus"], 0.5))
              potential_melody.pop() #removes the value from var.potential_melody
     return active_spells, potential_melody
 

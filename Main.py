@@ -20,14 +20,14 @@ display = pygame.display.set_mode((screenX, screenY), pygame.RESIZABLE)
 game_state = "Main Menu"
 Player = player.Player()
 
-currently_turning = False
 horizontal_res = 120 #horizontal resolution
 vertical_res = 200 #vertical resolution
 half_vertical_res = int(vertical_res / 2) #half the vertical resolution
-pixels_per_degree = horizontal_res/60 #scale factor - FOV is 60deg
-depth = np.zeros(horizontal_res)
-world_map = np.random.choice([0], (10, 10))
-world_map[0, :] = 1
+fov = 60
+pixels_per_degree = horizontal_res/fov #scale factor
+depth = np.zeros(horizontal_res) #creates an array of zeros the length of horizontal res
+world_map = np.random.choice([0], (10, 10)) #creates the world map
+world_map[0, :] = 1 #sets all map borders to 1 to prevent errors
 world_map[-1, :] = 1
 world_map[:, 0] = 1
 world_map[:, -1] = 1
@@ -115,7 +115,7 @@ while run: #creates an indefinite loop to keep the game running
      case "Main Menu": #if the game is currently in main menu state
         if stream_open[0] == True: #checks if stream is open
            stream_open[0] = False #closes the stream
-        frame, depth = Raycast.RayCast(2, 2, frame, world_map, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
+        frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
         Player.rotation += 0.001 #adds a little bit to player rotation, so the screen slowely rotates
         display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen 
         match menu_state:
@@ -150,8 +150,8 @@ while run: #creates an indefinite loop to keep the game running
           audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
           threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
           threaded_audio.start() #starts the thread
-       frame, depth = Raycast.RayCast(Player.xPos, Player.yPos, frame, world_map, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
-       currently_turning = Player.Movement(world_map, pygame.key.get_pressed(), currently_turning) #calls the movement subroutine
+       frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"]) #calls the raycast subroutine
+       Player.Movement(world_map, pygame.key.get_pressed()) #calls the movement subroutine
        note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing = audio.transform_sample(audio_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing)
        note_text = note_display_font.render(f"current note: {note}, {humming}", True, (0, 0, 0))
        current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note  = melody.determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note)

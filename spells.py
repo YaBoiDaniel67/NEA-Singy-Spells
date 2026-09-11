@@ -34,7 +34,7 @@ class Fireball(Spell):
 
 class Star(Spell):
    def __init__(self, damage, speed, x, y, ray_angle, texture, type, size, copy):
-      super().__init__(damage, speed, x, y, ray_angle, texture, type, size)
+      super().__init__(damage, speed, x, y, ray_angle, texture, type, size) #initialises all variables from the spell class
       self.copy = copy
       self.spawn_time = time.monotonic()
 
@@ -83,8 +83,8 @@ def find_spell(horizontal_res, pixels_per_degree, player, texture_dict, screenX,
              potential_melody.pop() #removes the value from var.potential_melody
     return active_spells, potential_melody
 
-def sort_spell_list(playerX, playerY, active_spells):
-   if len(active_spells) <= 1: #if the list it split down into one element, or the original input had 1 element
+def sort_spell_list(playerX, playerY, active_spells): #a merge sort
+   if len(active_spells) <= 1: #if the list is split down into one element, or the original input had 1 element
       return active_spells #returns this version of the list
    left_list = active_spells[:len(active_spells) // 2] #creates a sublist that contains the elft half of list elements and the middle value
    right_list = active_spells[len(active_spells) // 2:] #creates a sublist that contains the right half of list elements

@@ -19,7 +19,7 @@ def open_stream(mic_preference):
   return audio_queue, stream
 
 def collect_sample(audio_queue, stream, stream_open):
- while stream_open[0]:
+ while stream_open[0]: #while I want the thread to run
   data = stream.read(4096) #reads 4096 samples from the stream
   audio_queue.put(data) #puts these samples in a queue
 
@@ -41,15 +41,16 @@ def transform_sample(input_queue, recent_notes, current_melody, melody_lock, not
       main_freq = frequency_peaks[np.argmax(magnitude_peaks)] #determines the dominent frequency, which should always be the persons voice. it finds the frequency at the index which is the index of the highest magnitude
     else:
       main_freq = None #if no peaks are detected, then there is no dominent frequency
-    MIDI_note = (12 * np.log2(main_freq / 440.0)) + 69 #determines the MIDI note number of the given frequency. first divide by 440 to get a ratio between the detected frequency and A4
-    #log2 to determine how many octaves away the note is from A4, times by 12 to covnert this into semitones away form A4. add 69 as that is the midi note number for A4, and therefore cenetrs it around A4
-    MIDI_note = MIDI_note.astype(np.int16) #turns all values into integers so they can be used for indexing
-    humming = Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq) #calls the detect hum subroutine to check whether the sample was hummed
-    note = note_names[MIDI_note % 12] #finds the note in letter notation
-    recent_notes.append([MIDI_note, main_freq]) #adds the numerical note to the recent note list
-    audio_start_time = time.monotonic() #sets audio start time
-    if len(recent_notes) > 25:
-      recent_notes.pop(0) #if the recent notes list is getting too long, remove the oldest item
+    if main_freq:
+      MIDI_note = (12 * np.log2(main_freq / 440.0)) + 69 #determines the MIDI note number of the given frequency. first divide by 440 to get a ratio between the detected frequency and A4
+      #log2 to determine how many octaves away the note is from A4, times by 12 to covnert this into semitones away form A4. add 69 as that is the midi note number for A4, and therefore cenetrs it around A4
+      MIDI_note = MIDI_note.astype(np.int16) #turns all values into integers so they can be used for indexing
+      humming = Audio.Hum_Detector.detect_hum(valid_sample_frequency, valid_sample_magnitude, main_freq) #calls the detect hum subroutine to check whether the sample was hummed
+      note = note_names[MIDI_note % 12] #finds the note in letter notation
+      recent_notes.append([MIDI_note, main_freq]) #adds the numerical note to the recent note list
+      audio_start_time = time.monotonic() #sets audio start time
+      if len(recent_notes) > 25:
+        recent_notes.pop(0) #if the recent notes list is getting too long, remove the oldest item
   else:
     note = "-" #sets note to null
     humming = False #sets humming to false

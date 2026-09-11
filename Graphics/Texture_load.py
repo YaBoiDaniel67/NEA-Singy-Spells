@@ -1,7 +1,7 @@
 import pygame
 
-def load_textures(half_vertical_res):
-  texture_list = {}
+def load_textures(half_vertical_res): #called once when the program first startes to load all the textures
+  texture_list = {} #defines texture list as an empty dict
 
   play_button = pygame.image.load("Graphics/Textures/Buttons/Play_Button.png").convert()
   texture_list.update({"play_button" : play_button})

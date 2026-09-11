@@ -1,4 +1,4 @@
-import csv
+import csv #imports csv
 
 def load_csv_for_reading(csv_file_name):
     values = {} #sets values as an empty dictionary

@@ -7,7 +7,7 @@ def find_mic_options(screenX, screenY, display, texture_dict):
     audio = pyaudio.PyAudio() #opens an instance of pyaudio
     host_api = audio.get_default_host_api_info()["index"] #gets the index of the devices current host API
     for i in range(audio.get_device_count()): #for all the devices currently available in this pyaudio instance
-        current_device = audio.get_device_info_by_index(i) #sves the current device being worked with to a variable for ease
+        current_device = audio.get_device_info_by_index(i) #saves the current device being worked with to a variable for ease
         if current_device["hostApi"] == host_api and current_device.get("maxInputChannels") > 0: #if this devices host API is the devices, and it has any input channels then it is a valid mic
             mic_list.append(current_device.get("name")) #adds the name of this device to mic list
             mic_dict.append({current_device.get("name"): i}) #creates a dict linking this mic name and the index where this mic can be accessed

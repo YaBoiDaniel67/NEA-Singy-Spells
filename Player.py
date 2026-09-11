@@ -26,9 +26,9 @@ class Player():
       if keys[ord("s")]: #is key at index ord('s') currently being held down
         X_move -= np.cos(self.rotation)
         Y_move -= np.sin(self.rotation)
-      length = np.sqrt(X_move ** 2 + Y_move ** 2)
-      if length > 0:
-        X_move, Y_move = X_move / length, Y_move / length
+      length = np.sqrt(X_move ** 2 + Y_move ** 2) #gets the magnitude of the movement
+      if length > 0: #if the player has moved
+        X_move, Y_move = X_move / length, Y_move / length #normalises the movements
       x, y = x + X_move * self.speed, y + Y_move * self.speed
       if pygame.mouse.get_pressed()[2]:
         if self.turning == False:

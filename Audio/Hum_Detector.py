@@ -15,7 +15,7 @@ def detect_hum(frequency_list, magnitude_list, main_frequency):
     F2_energy = np.sum(magnitude_list[F2_Mask]) #calculates the sum of the magnitude of F2 values
     F1_ratio = F1_energy / (dominant_sound + 1e-6) #calculates F1 ratio, in relation to dominant sound
     F2_ratio = F2_energy / (dominant_sound + 1e-6) #calculates F2 ratio, in relation to dominant sound
-    if spectral_centroid <= 450 and F1_ratio < 0.7 and F2_ratio < 0.5: #if all ccomputed values suggest humming
+    if spectral_centroid <= 450 and F1_ratio < 0.7 and F2_ratio < 0.5: #if all computed values suggest humming
         humming = True
     else:
         humming = False

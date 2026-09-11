@@ -33,7 +33,7 @@ world_map[:, 0] = 1
 world_map[:, -1] = 1
 
 pygame.font.init()
-note_display_font = pygame.font.SysFont(None, int(screenX * 0.05))
+note_display_font = pygame.font.SysFont(None, int(screenX * 0.05)) #initialises fonts. None gives default pygame font
 Main_Menu_Title_font = pygame.font.SysFont(None, int(screenX * 0.5))
 
 clock = pygame.time.Clock()
@@ -48,7 +48,7 @@ humming = False #whether the note is being hummed
 recent_notes = [] #what notes have been seen recently
 current_melody = np.array([], dtype = object) #what melody is the player currently singing
 potential_melody = [] #what melodies the algorithm has detected the player singing
-melody_lock = False
+melody_lock = False #whether this current singing has already detected a melody
 audio_start_time = 0
 last_melody_check = 0
 note_start_time = 0
@@ -58,9 +58,9 @@ candidate_note = None
 
 active_spells = []
 current_mics, mic_dict = [], []
-audio_instance = pyaudio.PyAudio()
-mic_preference = audio_instance.get_default_input_device_info()["index"]
-audio_instance.terminate()
+audio_instance = pyaudio.PyAudio() #initiates a pyaduio instance
+mic_preference = audio_instance.get_default_input_device_info()["index"] #gets the devices defualt mic as the defualt preference
+audio_instance.terminate() #terminates the instance
 stream = None
 stream_open = [True]
 
@@ -85,9 +85,9 @@ all_buttons.append(mic_options_button)
 start_text = Main_Menu_Title_font.render("Singy Spells", True, (0, 0, 0))
 
 run = True
-#MAIN PROGRAM LOOP STARTS HERE
+############################################################ MAIN PROGRAM LOOP STARTS HERE ############################################################
 while run: #creates an indefinite loop to keep the game running
-    display.fill((0, 0, 0))
+    display.fill((0, 0, 0)) #fills the screen with black
     for event in pygame.event.get():
       if event.type == QUIT:
          run = False #if the cross button is pressed, the window closes - allows exit of the program
@@ -105,6 +105,7 @@ while run: #creates an indefinite loop to keep the game running
              case "Play": #if current game state is playing
               game_state = "Main Menu" #moves to main menud state
               menu_state = "Main" #sets menu state to main
+            match menu_state:
              case "settings": #if current menu state is in settings
                menu_state = "Main" #move to main menu state
              case "microphone_select": #if menu states is in microphone settings
@@ -124,7 +125,7 @@ while run: #creates an indefinite loop to keep the game running
         display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen 
         match menu_state:
          case "Main": #if the menu state is main
-          display.blit(pygame.transform.scale(start_text, (screenX * 0.5, screenX * 0.125)), (screenX * 0.25, screenY * 0.125))
+          display.blit(pygame.transform.scale(start_text, (screenX * 0.5, screenX * 0.125)), (screenX * 0.25, screenY * 0.125)) #draws the start text to the screen
           for button in main_menu_buttons:
              button.draw_to_screen() #draws all main menu buttons to screen
           if start_button.check_pressed(): #checks if the start button got pressed

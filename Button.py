@@ -13,7 +13,7 @@ class Button():
       self.width_ratio = width_ratio
       self.height_ratio = height_ratio
       self.last_press = time.monotonic()
-      self.text = text
+      self.text = text #always inputted as none if no text is wanted
       if self.text: #if any text was inputted during button creation
         self.text_font = pygame.font.SysFont(None, int(self.height / 4)) #intialises the font
         self.rendered_text = self.text_font.render(self.text, True, (0, 0, 0)) #renders this font with the inputted text

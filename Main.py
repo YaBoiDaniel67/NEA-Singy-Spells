@@ -13,6 +13,7 @@ import Graphics.Texture_load as textures
 import spells
 import Button as Buttons
 import Settings_Menu as settings
+import file_reader
 #imports the other files
 
 screenX, screenY = 320, 180 #initial window size
@@ -26,11 +27,7 @@ half_vertical_res = int(vertical_res / 2) #half the vertical resolution
 fov = 60
 pixels_per_degree = horizontal_res/fov #scale factor
 depth = np.zeros(horizontal_res) #creates an array of zeros the length of horizontal res
-world_map = np.random.choice([0], (10, 10)) #creates the world map
-world_map[0, :] = 1 #sets all map borders to 1 to prevent errors
-world_map[-1, :] = 1
-world_map[:, 0] = 1
-world_map[:, -1] = 1
+world_map = file_reader.extract_map(0)
 
 pygame.font.init()
 note_display_font = pygame.font.SysFont(None, int(screenX * 0.05)) #initialises fonts. None gives default pygame font
@@ -73,6 +70,9 @@ all_buttons.append(start_button)
 main_settings_button = Buttons.Button(screenX, screenY, texture_dict["settings_button"], display, 0.04, 0.07, 0.06, 0.06, None)
 main_menu_buttons.append(main_settings_button)
 all_buttons.append(main_settings_button)
+Tutorial_button = Buttons.Button(screenX, screenY, texture_dict["play_button"], display, 0.04, 0.93, 0.06, 0.06, "Tutorial")
+main_menu_buttons.append(Tutorial_button)
+all_buttons.append(Tutorial_button)
 
 settings_buttons = []
 return_button = Buttons.Button(screenX, screenY, texture_dict["return_button"], display, 0.04, 0.07, 0.06, 0.06, None)
@@ -134,6 +134,8 @@ while run: #creates an indefinite loop to keep the game running
           elif main_settings_button.check_pressed(): #if the settings button got pressed
              menu_state = "settings" #sets the menu state to settings
              return_button.last_press = time.monotonic() #sets the returns button last press time so it doesnt accidently get pressed when clicking on settings
+          elif Tutorial_button.check_pressed():
+            game_state = "Tutorial"
          case "settings": #if the menu state is in settings
            for buttons in settings_buttons:
               buttons.draw_to_screen() #draws all the settings button to the screen
@@ -141,7 +143,7 @@ while run: #creates an indefinite loop to keep the game running
               menu_state = "microphone_select" #sets menu state to microphone select
               return_button.last_press = time.monotonic() #sets the returns button last press time so it doesnt accidently get pressed
               current_mics, mic_dict = settings.find_mic_options(screenX, screenY, display, texture_dict) #finds all currently available microphones
-           if return_button.check_pressed(): #if the return button got pressed
+           elif return_button.check_pressed(): #if the return button got pressed
               menu_state = "Main" #sets menu state to main
               main_settings_button.last_press = time.monotonic() #sets the returns button last press time so it doesnt accidently get pressed when clicking on return
          case "microphone_select": #if menu state is in microphone select

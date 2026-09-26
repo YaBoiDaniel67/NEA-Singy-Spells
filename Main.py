@@ -14,6 +14,8 @@ import spells
 import Button as Buttons
 import Settings_Menu as settings
 import file_reader
+import on_screen_elements as all_objects
+import Enemy
 #imports the other files
 
 screenX, screenY = 320, 180 #initial window size
@@ -27,11 +29,15 @@ half_vertical_res = int(vertical_res / 2) #half the vertical resolution
 fov = 60
 pixels_per_degree = horizontal_res/fov #scale factor
 depth = np.zeros(horizontal_res) #creates an array of zeros the length of horizontal res
-world_map = file_reader.extract_map(0)
+world_map = file_reader.extract_map(1)
+texture_index_mappings = ["", "wall", "wall_target"]
+tutorial_text = ["Placeholder Text", "Hey gang aint this fun", "tutorial time", "woopdeedoo"]
+jump_list = [1, 2, 3, 100]
 
 pygame.font.init()
-note_display_font = pygame.font.SysFont(None, int(screenX * 0.05)) #initialises fonts. None gives default pygame font
+note_display_font = pygame.font.SysFont(None, int(screenX * 0.05)) #initialises fonts. None gives default pygame fonta
 Main_Menu_Title_font = pygame.font.SysFont(None, int(screenX * 0.5))
+tutorial_text_font = pygame.font.SysFont(None, int(screenX * 0.05))
 
 clock = pygame.time.Clock()
 frame = np.random.uniform(0, 1, (horizontal_res, vertical_res, 3)) #frame is numpy array as it is faster to edit and write data to
@@ -53,7 +59,7 @@ new_note_start_time = None
 prev_frame_note = 0
 candidate_note = None
 
-active_spells = []
+on_screen_objects = []
 current_mics, mic_dict = [], []
 audio_instance = pyaudio.PyAudio() #initiates a pyaduio instance
 mic_preference = audio_instance.get_default_input_device_info()["index"] #gets the devices defualt mic as the defualt preference
@@ -99,6 +105,7 @@ while run: #creates an indefinite loop to keep the game running
             buttons.resize(screenX, screenY) #resizes them
          note_display_font = pygame.font.SysFont(None, int(screenX * 0.05)) #resizes font for displaying note
          Main_Menu_Title_font = pygame.font.SysFont(None, (int(screenX * 0.5))) #resizes font for menu title
+         tutorial_text_font = pygame.font.SysFont(None, int(screenX * 0.05)) #resizes font for tutorial text
       if event.type == KEYDOWN: #if any key is activly being pressed
          if pygame.key.get_pressed()[pygame.K_ESCAPE]: #if the escape key is pressed
             match game_state:
@@ -111,16 +118,19 @@ while run: #creates an indefinite loop to keep the game running
              case "microphone_select": #if menu states is in microphone settings
                menu_state = "settings" #moves to settings menu state
          elif pygame.key.get_pressed()[pygame.K_f]:
-            active_spells.append(spells.Invis_Projectile(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
+            on_screen_objects.append(spells.Invis_Projectile(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Invis_texture"], "projectile", 0.5, 10, spells.ground_cactus, texture_dict["cactus"], 0.5))
          elif pygame.key.get_pressed()[pygame.K_g]:
-           active_spells.append(spells.Star(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Star"], "projectile", 0.5, False))
+           on_screen_objects.append(spells.Star(10, 0.05, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Star"], "projectile", 0.5, False))
          elif pygame.key.get_pressed()[pygame.K_h]:
-           active_spells.append(spells.Fireball(20, 0.1, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Fireball"], "projectile", 1))
+           on_screen_objects.append(spells.Fireball(20, 0.1, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Fireball"], "projectile", 1))
+         elif pygame.key.get_pressed()[pygame.K_1]:
+           Player.take_damage(1)
+           on_screen_objects.append(Enemy.enemy(5, 100, 5, 0.5, 1.1, 1.1, [texture_dict["Fireball"]], 1))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
         if stream_open[0] == True: #checks if stream is open
            stream_open[0] = False #closes the stream
-        frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"], fov) #calls the raycast subroutine
+        frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, fov, texture_dict, texture_index_mappings, file_reader) #calls the raycast subroutine
         Player.rotation += 0.001 #adds a little bit to player rotation, so the screen slowely rotates
         display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen 
         match menu_state:
@@ -130,12 +140,18 @@ while run: #creates an indefinite loop to keep the game running
              button.draw_to_screen() #draws all main menu buttons to screen
           if start_button.check_pressed(): #checks if the start button got pressed
              game_state = "Play" #sets game state to play
-             Player.xPos, Player.yPos, Player.rotation, active_spells = 1.1, 1.1, 0, [] #initalises variable for gameplay
+             Player.xPos, Player.yPos, Player.rotation, on_screen_objects = 1.1, 1.1, 0, [] #initalises variable for gameplay
+             world_map = file_reader.extract_map(1)
           elif main_settings_button.check_pressed(): #if the settings button got pressed
              menu_state = "settings" #sets the menu state to settings
              return_button.last_press = time.monotonic() #sets the returns button last press time so it doesnt accidently get pressed when clicking on settings
           elif Tutorial_button.check_pressed():
-            game_state = "Tutorial"
+             game_state = "Tutorial" #sets game state to play
+             Player.xPos, Player.yPos, Player.rotation, on_screen_objects = 1.1, 1.1, 0, [] #initalises variable for gameplay
+             world_map = file_reader.extract_map(0)
+             tutorial_stage = 0
+             next_x = 3
+             current_jump = 1
          case "settings": #if the menu state is in settings
            for buttons in settings_buttons:
               buttons.draw_to_screen() #draws all the settings button to the screen
@@ -157,17 +173,43 @@ while run: #creates an indefinite loop to keep the game running
           audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
           threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
           threaded_audio.start() #starts the thread
-       frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, texture_dict["sky"], texture_dict["wall"], depth, texture_dict["floor"], fov) #calls the raycast subroutine
+       frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, fov, texture_dict, texture_index_mappings, file_reader) #calls the raycast subroutine
        Player.Movement(world_map, pygame.key.get_pressed()) #calls the movement subroutine
        note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing = audio.transform_sample(audio_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing)
        note_text = note_display_font.render(f"current note: {note}, {humming}", True, (0, 0, 0))
        current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note  = melody.determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note)
        current_melody, melody_lock, potential_melody, last_melody_check = melody.check_melody(current_melody, melody_lock, potential_melody, last_melody_check)
-       active_spells, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player, texture_dict, screenX, potential_melody, active_spells, fov)
-       for spell in active_spells:
-         frame, active_spells = spells.draw_on_screen(frame, spell, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells, fov)
-       active_spells = spells.sort_spell_list(Player.xPos, Player.yPos, active_spells)
+       on_screen_objects, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player, texture_dict, screenX, potential_melody, on_screen_objects, fov)
+       for current_object in on_screen_objects:
+         frame, on_screen_objects, world_map = all_objects.draw_on_screen(frame, current_object, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, on_screen_objects, fov, Player)
+       on_screen_objects = all_objects.sort_object_list(Player.xPos, Player.yPos, on_screen_objects)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen
+       Player.display_health(display, screenX, screenY)
+     case "Tutorial":
+       if stream_open[0] == False: #if the stream is closed
+          stream_open[0] = True #allows the stream to open
+          audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
+          threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
+          threaded_audio.start() #starts the thread
+       if Player.xPos > next_x:
+         next_x += jump_list[current_jump]
+         current_jump += 1
+         tutorial_stage += 1
+       frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, fov, texture_dict, texture_index_mappings, file_reader) #calls the raycast subroutine
+       Player.Movement(world_map, pygame.key.get_pressed()) #calls the movement subroutine
+       note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing = audio.transform_sample(audio_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing)
+       note_text = note_display_font.render(f"current note: {note}, {humming}", True, (0, 0, 0))
+       current_tutorial_stage_text = tutorial_text_font.render(tutorial_text[tutorial_stage], True, (0, 0, 0))
+       current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note  = melody.determine_melody(note, recent_notes, current_melody, note_start_time, candidate_note, new_note_start_time, prev_frame_note)
+       current_melody, melody_lock, potential_melody, last_melody_check = melody.check_melody(current_melody, melody_lock, potential_melody, last_melody_check)
+       on_screen_objects, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player, texture_dict, screenX, potential_melody, on_screen_objects, fov)
+       for current_object in on_screen_objects:
+         frame, on_screen_objects, world_map = all_objects.draw_on_screen(frame, current_object, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, on_screen_objects, fov, Player)
+       on_screen_objects = all_objects.sort_object_list(Player.xPos, Player.yPos, on_screen_objects)
+       display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
+       display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen
+       display.blit(current_tutorial_stage_text, (screenX * 0.7, screenY * 0.05))
+       Player.display_health(display, screenX, screenY)
     pygame.display.update() #updates the display
     clock.tick(80) #caps FPS at 80

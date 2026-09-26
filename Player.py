@@ -10,6 +10,8 @@ class Player():
       self.xPos, self.yPos = 1.1, 1.1
       self.rotation = 0
       self.turning = False
+      self.max_health = 100
+      self.health = self.max_health
 
     def Movement(self, world_map, keys):
       x, y = self.xPos, self.yPos
@@ -52,3 +54,12 @@ class Player():
       elif not (world_map[int(x - 0.1)][int(self.yPos)] or world_map[int(x + 0.1)][int(self.yPos)] or world_map[int(x)][int(self.yPos - 0.1)] or world_map[int(x)][int(self.yPos + 0.1)]): #if the y is about to move into a wall but the x is not, the x updates
         self.xPos = x
       #checks whether the player has moved, and adjusts value acoordingly so they move in game space
+
+    def take_damage(self, damage):
+      self.health -= damage
+      self.health = max(0, self.health)
+
+    def display_health(self, display, screenX, screenY):
+      pygame.draw.rect(display, (0, 0, 0), pygame.Rect(0.05 * screenX, 0.15 * screenY, 0.4 * screenX, 0.05 * screenX))
+      single_health_percent = (0.4 * screenX) / self.max_health
+      pygame.draw.rect(display, (0, 255, 0), pygame.Rect(0.05 * screenX, 0.15 * screenY, single_health_percent * self.health, 0.05 * screenX))

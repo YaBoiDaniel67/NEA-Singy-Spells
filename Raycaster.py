@@ -1,6 +1,8 @@
 import numpy as np
 
-def RayCast(player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, sky, wall, depth, floor, fov):
+def RayCast(player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, fov, texture_dict, texture_index_mapping, file_reader):
+    sky = texture_dict["sky"]
+    floor = texture_dict["floor"]
     for i in range(horizontal_res): #loops through the amount of pixels horizontally across the screen
         x, y = player.xPos, player.yPos #creates a local copy of the player x and y coords
         player_redundant_ray_angle = np.deg2rad((i / pixels_per_degree) - (fov / 2)) #calculates the angle for the current ray
@@ -41,6 +43,7 @@ def RayCast(player, frame, world_map, pixels_per_degree, vertical_res, half_vert
         depth[i] = distance #adds the distance of this column to the corresponding index in depth
         x = player.xPos + distance * cos #sets new x, adding on scaled distance
         y = player.yPos + distance * sin #sets new y, adding on scaled distance
+        wall = texture_dict[texture_index_mapping[world_map[mapX][mapY]]]
         height = int(vertical_res/ (distance * correctional_cos + 1e-6)) #calculates the height of the wall (how many available wall pixels / how far away the wall is * correctional_cos to correct fish eye distortion, add small value to prevent division by 0)
         half_height = int(height / 2) #saved to variable to prevent unnecessary calculations
         pix_x = int((x % 1) * 100) #calculates the x coord of the pixel on the bitmap (size 100 x 100)

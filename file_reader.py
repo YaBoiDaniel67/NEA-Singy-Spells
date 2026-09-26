@@ -23,6 +23,8 @@ def extract_map(map_num):
             if row == "":
                 current_map_id += 1
             if current_map_id == map_num:
+                if current_map_id > 0:
+                    current_line_num += 1
                 break
             current_line_num += 1
         while lines[current_line_num] != "\n":

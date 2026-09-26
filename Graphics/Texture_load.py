@@ -33,6 +33,10 @@ def load_textures(half_vertical_res): #called once when the program first starte
   wall = pygame.surfarray.array3d(pygame.transform.scale(wall, (100, half_vertical_res)))
   texture_list.update({"wall" : wall})
 
+  wall_target = pygame.image.load("Graphics/Textures/Wall_target.png").convert()
+  wall_target = pygame.surfarray.array3d(pygame.transform.scale(wall_target, (100, half_vertical_res)))
+  texture_list.update({"wall_target" : wall_target})
+
   Fireball = pygame.image.load("Graphics/Textures/Fireball.png").convert()
   Fireball = pygame.surfarray.array3d(Fireball)
   texture_list.update({"Fireball" : Fireball})

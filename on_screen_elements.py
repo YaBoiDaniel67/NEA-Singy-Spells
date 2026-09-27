@@ -31,7 +31,9 @@ def sort_object_list(playerX, playerY, on_screen_objects): #a merge sort
 def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, active_spells, fov, player):
    current_object.special(active_spells)
    match current_object.type:
-      case "projectile":
+     case "Spell":
+      match current_object.spell_type:
+       case "projectile":
         current_object.x += np.cos(current_object.ray_angle) * current_object.speed #updates objects x position
         current_object.y += np.sin(current_object.ray_angle) * current_object.speed #updates objects y position
         current_map_index =  world_map[max(0, min(int(current_object.x), len(world_map) - 1))][max(0, min(int(current_object.y), len(world_map[0]) - 1))]
@@ -64,7 +66,8 @@ def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation
                 tex_column = current_object.texture[tex_x, tex_y_array] #calculates all the colour values for this column
                 visible_mask = ~np.all(tex_column == [1, 0, 0], axis = 1) #creates a mask to ignore the colour pre-defined as clear
                 frame[j][row[visible_mask]] = tex_column[visible_mask] #applies the mask and writes the remaining values to frame
-      case "ground_object":
+
+       case "ground_object":
          if time.monotonic() - current_object.spawn_time >= current_object.lifespan:
             active_spells.remove(current_object)
          angle_to_object_from_player = np.arctan2(current_object.y - yPos, current_object.x - xPos) #calculates the angle from the player to the object
@@ -93,7 +96,7 @@ def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation
                 visible_mask = ~np.all(tex_column == [1, 0, 0], axis = 1) #creates a mask to ignore the colour pre-defined as clear
                 frame[j][row[visible_mask]] = tex_column[visible_mask] #applies the mask and writes the remaining values to frame
 
-      case "enemy":
+     case "enemy":
          current_object.update_animation()
          current_object.attack(player)
          current_object.move(player, world_map)

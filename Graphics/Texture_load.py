@@ -52,6 +52,18 @@ def load_textures(half_vertical_res): #called once when the program first starte
   cactus = pygame.image.load("Graphics/Textures/Cactus.png").convert()
   cactus = pygame.surfarray.array3d(cactus)
   texture_list.update({"cactus" : cactus})
+
+  happy_guy_list = []
+  happy_guy_1 = pygame.image.load("Graphics/Textures/Enemies/Happy guy/Happy guy 1.png").convert()
+  happy_guy_1 = pygame.surfarray.array3d(happy_guy_1)
+  happy_guy_list.append(happy_guy_1)
+  happy_guy_2 = pygame.image.load("Graphics/Textures/Enemies/Happy guy/Happy guy 2.png").convert()
+  happy_guy_2 = pygame.surfarray.array3d(happy_guy_2)
+  happy_guy_list.append(happy_guy_2)
+  happy_guy_3 = pygame.image.load("Graphics/Textures/Enemies/Happy guy/Happy guy 3.png").convert()
+  happy_guy_3 = pygame.surfarray.array3d(happy_guy_3)
+  happy_guy_list.append(happy_guy_3)
+  texture_list.update({"Happy_guy" : happy_guy_list})
   
   return texture_list
 

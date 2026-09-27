@@ -34,6 +34,13 @@ class enemy:
                 self.last_attack_time = time.monotonic()
                 player.take_damage(self.damage)
 
+    def take_damage(self, damage, enemy_list, on_screen_objects):
+        self.health -= damage
+        if self.health <= 0:
+            enemy_list.remove(self)
+            on_screen_objects.remove(self)
+
+
     def move(self, player, world_map):
         player_distance = np.sqrt((self.x - player.xPos) ** 2 + (self.y - player.yPos) ** 2)
         ray_angle = np.arctan2(player.yPos - self.y, player.xPos - self.x)
@@ -76,7 +83,6 @@ class enemy:
                 side_dist_y += tile_dist_y #goes to next horizontal boundary
                 mapY += step_y #moves 1 tile up or down
                 side = 1 #remebers last step was in y
-        print(clear_path)
         if clear_path and np.sqrt((self.x - player.xPos) ** 2 + (self.y - player.yPos) ** 2) > 0.5:
             self.x += ((player.xPos - self.x) / player_distance) * self.speed
             self.y += ((player.yPos - self.y) / player_distance) * self.speed

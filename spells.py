@@ -24,9 +24,16 @@ class Spell():
      self.y = y
      self.ray_angle = ray_angle
      self.texture = texture
-     self.type = type
+     self.type = "Spell"
+     self.spell_type = type
      self.size = size
      self.spawn_time = time.monotonic()
+
+  def detect_hit(self, enemy_list, on_screen_objects):
+     for i in range(len(enemy_list)):
+        if np.sqrt((self.x - enemy_list[i].x) ** 2 + (self.y - enemy_list[i].y) ** 2) < self.size / 2 + enemy_list[i].size / 2:
+           enemy_list[i].take_damage(self.damage, enemy_list, on_screen_objects)
+           break
 
 class Fireball(Spell):
    def special(self, on_screen_objects):

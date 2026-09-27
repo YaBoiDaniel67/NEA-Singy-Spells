@@ -48,6 +48,7 @@ singing = False
 
 note = "-" #current note being detected
 humming = False #whether the note is being hummed
+audio_queue = []
 recent_notes = [] #what notes have been seen recently
 current_melody = np.array([], dtype = object) #what melody is the player currently singing
 potential_melody = [] #what melodies the algorithm has detected the player singing
@@ -91,6 +92,18 @@ all_buttons.append(mic_options_button)
 
 start_text = Main_Menu_Title_font.render("Singy Spells", True, (0, 0, 0))
 
+def initialise_variable(player, on_screen_objects):
+  player.xPos, player.yPos, player.health, on_screen_objects = 2, 2, 100, [] #initalises variable for gameplay
+  return on_screen_objects
+
+def check_stream(mic_preference, audio_queue, stream, stream_open):
+   if stream_open[0] == False: #if the stream is closed
+      stream_open[0] = True #allows the stream to open
+      audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
+      threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
+      threaded_audio.start() #starts the thread
+   return audio_queue, stream
+
 run = True
 ############################################################ MAIN PROGRAM LOOP STARTS HERE ############################################################
 while run: #creates an indefinite loop to keep the game running
@@ -125,8 +138,7 @@ while run: #creates an indefinite loop to keep the game running
          elif pygame.key.get_pressed()[pygame.K_h]:
            on_screen_objects.append(spells.Fireball(20, 0.1, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Fireball"], "projectile", 1))
          elif pygame.key.get_pressed()[pygame.K_1]:
-           Player.take_damage(1)
-           on_screen_objects.append(Enemy.enemy(5, 100, 0.01, 0.5, 2, 2, [texture_dict["Fireball"], texture_dict["Star"]], 1, 1, enemy_list))
+           on_screen_objects.append(Enemy.enemy(5, 100, 0.01, 0.5, 2, 2, texture_dict["Happy_guy"], 1, 0.1, enemy_list))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
         if stream_open[0] == True: #checks if stream is open
@@ -141,14 +153,14 @@ while run: #creates an indefinite loop to keep the game running
              button.draw_to_screen() #draws all main menu buttons to screen
           if start_button.check_pressed(): #checks if the start button got pressed
              game_state = "Play" #sets game state to play
-             Player.xPos, Player.yPos, Player.rotation, on_screen_objects = 1.1, 1.1, 0, [] #initalises variable for gameplay
+             on_screen_objects = initialise_variable(Player, on_screen_objects)
              world_map = file_reader.extract_map(1)
           elif main_settings_button.check_pressed(): #if the settings button got pressed
              menu_state = "settings" #sets the menu state to settings
              return_button.last_press = time.monotonic() #sets the returns button last press time so it doesnt accidently get pressed when clicking on settings
           elif Tutorial_button.check_pressed():
              game_state = "Tutorial" #sets game state to play
-             Player.xPos, Player.yPos, Player.rotation, on_screen_objects = 1.1, 1.1, 0, [] #initalises variable for gameplay
+             on_screen_objects = initialise_variable(Player, on_screen_objects)
              world_map = file_reader.extract_map(0)
              tutorial_stage = 0
              next_x = 3
@@ -169,11 +181,7 @@ while run: #creates an indefinite loop to keep the game running
            if return_button.check_pressed(): #if the return button got pressed
               menu_state = "settings" #sets menu state to settings
      case "Play":
-       if stream_open[0] == False: #if the stream is closed
-          stream_open[0] = True #allows the stream to open
-          audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
-          threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
-          threaded_audio.start() #starts the thread
+       audio_queue, stream = check_stream(mic_preference, audio_queue, stream, stream_open)
        frame, depth = Raycast.RayCast(Player, frame, world_map, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, fov, texture_dict, texture_index_mappings, file_reader) #calls the raycast subroutine
        Player.Movement(world_map, pygame.key.get_pressed()) #calls the movement subroutine
        note, humming, recent_notes, current_melody, melody_lock, audio_start_time, last_singing_time, singing = audio.transform_sample(audio_queue, recent_notes, current_melody, melody_lock, note, humming, audio_start_time, last_singing_time, singing)
@@ -183,16 +191,14 @@ while run: #creates an indefinite loop to keep the game running
        on_screen_objects, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player, texture_dict, screenX, potential_melody, on_screen_objects, fov)
        for current_object in on_screen_objects:
          frame, on_screen_objects, world_map = all_objects.draw_on_screen(frame, current_object, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, on_screen_objects, fov, Player)
+         if current_object.type == "Spell":
+           current_object.detect_hit(enemy_list, on_screen_objects)
        on_screen_objects = all_objects.sort_object_list(Player.xPos, Player.yPos, on_screen_objects)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen
        Player.display_health(display, screenX, screenY) #draws the player health bar to the screen
      case "Tutorial":
-       if stream_open[0] == False: #if the stream is closed
-          stream_open[0] = True #allows the stream to open
-          audio_queue, stream = audio.open_stream(mic_preference) #opens the stream with mic preference
-          threaded_audio = threading.Thread(target = audio.collect_sample, args = (audio_queue, stream, stream_open), daemon = True) #creates a thread so that the audio detection can run in parallel with the rest of the project
-          threaded_audio.start() #starts the thread
+       audio_queue, stream = check_stream(mic_preference, audio_queue, stream, stream_open)
        if Player.xPos > next_x:
          next_x += jump_list[current_jump]
          current_jump += 1
@@ -207,6 +213,8 @@ while run: #creates an indefinite loop to keep the game running
        on_screen_objects, potential_melody = spells.find_spell(horizontal_res, pixels_per_degree, Player, texture_dict, screenX, potential_melody, on_screen_objects, fov)
        for current_object in on_screen_objects:
          frame, on_screen_objects, world_map = all_objects.draw_on_screen(frame, current_object, world_map, Player.xPos, Player.yPos, Player.rotation, pixels_per_degree, vertical_res, half_vertical_res, horizontal_res, depth, on_screen_objects, fov, Player)
+         if current_object.type == "Spell":
+           current_object.detect_hit(enemy_list, on_screen_objects)
        on_screen_objects = all_objects.sort_object_list(Player.xPos, Player.yPos, on_screen_objects)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen

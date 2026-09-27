@@ -96,6 +96,7 @@ def draw_on_screen(frame, current_object, world_map, xPos, yPos, player_rotation
       case "enemy":
          current_object.update_animation()
          current_object.attack(player)
+         current_object.move(player, world_map)
          angle_to_object_from_player = np.arctan2(current_object.y - yPos, current_object.x - xPos) #calculates the angle from the player to the object
          no_rotation_angle = angle_to_object_from_player - player_rotation #changes the angle so it is relative to where the player is facing
          no_rotation_angle = (no_rotation_angle + np.pi) % (2 * np.pi) - np.pi #shifts the angle between -pi and pi

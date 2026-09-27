@@ -70,7 +70,7 @@ class ground_cactus(Spell):
 
 
 def find_spell(horizontal_res, pixels_per_degree, player, texture_dict, screenX, potential_melody, on_screen_objects, fov):
-    if len(potential_melody) > 0: #if the players has sung a melody
+    if len(potential_melody) > 0: #if the player has sung a melody
       for spell_name, spell in spells.items(): #loops through all the spells
           if spell["melody_ID"] in potential_melody: #if that spell is the one the player sang
              match spell_name: #case statement to match the spell name to its spell

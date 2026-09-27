@@ -60,6 +60,7 @@ prev_frame_note = 0
 candidate_note = None
 
 on_screen_objects = []
+enemy_list = []
 current_mics, mic_dict = [], []
 audio_instance = pyaudio.PyAudio() #initiates a pyaduio instance
 mic_preference = audio_instance.get_default_input_device_info()["index"] #gets the devices defualt mic as the defualt preference
@@ -125,7 +126,7 @@ while run: #creates an indefinite loop to keep the game running
            on_screen_objects.append(spells.Fireball(20, 0.1, Player.xPos, Player.yPos, spells.get_ray_angle(horizontal_res, pixels_per_degree, Player.rotation, screenX, fov), texture_dict["Fireball"], "projectile", 1))
          elif pygame.key.get_pressed()[pygame.K_1]:
            Player.take_damage(1)
-           on_screen_objects.append(Enemy.enemy(5, 100, 5, 0.5, 1.1, 1.1, [texture_dict["Fireball"]], 1))
+           on_screen_objects.append(Enemy.enemy(5, 100, 0.01, 0.5, 2, 2, [texture_dict["Fireball"], texture_dict["Star"]], 1, 1, enemy_list))
     match game_state:
      case "Main Menu": #if the game is currently in main menu state
         if stream_open[0] == True: #checks if stream is open
@@ -185,7 +186,7 @@ while run: #creates an indefinite loop to keep the game running
        on_screen_objects = all_objects.sort_object_list(Player.xPos, Player.yPos, on_screen_objects)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen
-       Player.display_health(display, screenX, screenY)
+       Player.display_health(display, screenX, screenY) #draws the player health bar to the screen
      case "Tutorial":
        if stream_open[0] == False: #if the stream is closed
           stream_open[0] = True #allows the stream to open
@@ -209,7 +210,7 @@ while run: #creates an indefinite loop to keep the game running
        on_screen_objects = all_objects.sort_object_list(Player.xPos, Player.yPos, on_screen_objects)
        display.blit(pygame.transform.scale(pygame.surfarray.make_surface(frame), (screenX, screenY)), (0, 0)) #draws the values stored in frame to the screen
        display.blit(note_text, (screenX * 0.05, screenY * 0.05)) #draws the current note text to screen
-       display.blit(current_tutorial_stage_text, (screenX * 0.7, screenY * 0.05))
-       Player.display_health(display, screenX, screenY)
+       display.blit(current_tutorial_stage_text, (screenX * 0.7, screenY * 0.05)) #draws the tutorial text to the screen
+       Player.display_health(display, screenX, screenY) #draws the health bar to the screen
     pygame.display.update() #updates the display
     clock.tick(80) #caps FPS at 80
